@@ -19,4 +19,5 @@ scripts.forEach((code, i) => {
   writeFileSync(path, code);
   execFileSync(process.execPath, ['--check', path], { stdio: 'inherit' });
 });
+
 console.log(`OK: ${scripts.length} скрипт(ов) в ${FILE} без синтаксических ошибок`);
