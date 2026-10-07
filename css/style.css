@@ -109,6 +109,14 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
 .buy.two { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 10px; line-height: 1.15; }
 .buy.two .price { font-size: 15px; font-weight: 700; }
 .buy.two .act { font-size: 11px; font-weight: 500; opacity: .8; }
+/* Все кнопки в строках одного размера, что бы на них ни было написано: ширина и высота не зависят от цены и контекста */
+.row .buy {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  flex: none; width: 124px; min-width: 0; height: 46px; padding: 4px 8px;
+  line-height: 1.15; text-align: center; white-space: normal; overflow: hidden;
+}
+.row .buy.two .price { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.buywrap { width: 124px; }
 .buy[disabled] { opacity: .35; cursor: default; }
 .chip {
   display: inline-block; min-width: 24px; padding: 1px 8px; margin-left: 4px; border-radius: 999px;
