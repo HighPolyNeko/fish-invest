@@ -8,17 +8,19 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/settings.js"></script>
 </head>
 <body>
   <div id="app">
     <section class="col" id="left">
       <header id="head">
+        <button id="settings-btn" aria-label="Настройки">⚙️</button>
         <h1 id="title">🐠 Рынок редкой рыбы</h1>
         <div id="money">0 €</div>
         <div id="cps">0 € в секунду</div>
       </header>
       <div id="buffs"></div>
-      <div id="stage"><button id="fish" aria-label="Редкая рыба"><span>🐟</span></button></div>
+      <div id="stage"><button id="fish" aria-label="Редкая рыба"><span>🐟</span><canvas id="fish-canvas"></canvas></button></div>
       <div id="toast"></div>
     </section>
 
@@ -69,6 +71,18 @@
     </section>
   </div>
 
+  <dialog id="settings">
+    <h2>Настройки</h2>
+    <div class="set-label">Тема</div>
+    <div class="seg" id="themes">
+      <button data-theme="dark">Тёмная</button>
+      <button data-theme="light">Светлая</button>
+    </div>
+    <div class="set-label">Громкость <span id="volume-text"></span></div>
+    <input type="range" id="volume" min="0" max="100" step="5">
+    <button class="buy" id="settings-close">Закрыть</button>
+  </dialog>
+
   <!-- Скрипты подключаются по порядку; общее состояние лежит в window.Fish -->
   <script src="js/data.js"></script>
   <script src="js/util.js"></script>
@@ -77,6 +91,9 @@
   <script src="js/ui.js"></script>
   <script src="js/actions.js"></script>
   <script src="js/events.js"></script>
+  <script src="js/fish.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/menu.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

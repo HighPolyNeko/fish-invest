@@ -24,4 +24,34 @@
   --shadow: rgba(0, 0, 0, .5);
   --ring: rgba(255, 255, 255, .08);
   --ring-hover: rgba(255, 255, 255, .14);
+  --backdrop: rgba(0, 0, 0, .6);
+}
+
+/* Светлая тема. Включается атрибутом data-theme="light" на <html> (настройка в меню). */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --text: #1c1c1e;
+  --hint: #7d7d85;
+  --card: #f2f2f7;
+  --btn: #2481cc;
+  --btn-text: #ffffff;
+  --good: #2e9e5b;
+  --bad: #d64545;
+
+  --panel-center: #f7f8fa;
+  --panel-right: #ffffff;
+  --border: #dde1e7;
+  --track: rgba(125, 125, 133, .25);
+
+  --sea-light: #cfe7f8;
+  --sea-mid: #e6f2fb;
+  --fish-light: #f8fbfe;
+  --fish-dark: #d3e5f3;
+  --glow: rgba(36, 129, 204, .3);
+  --shadow: rgba(0, 0, 0, .15);
+  --ring: rgba(0, 0, 0, .05);
+  --ring-hover: rgba(36, 129, 204, .25);
+  --backdrop: rgba(0, 0, 0, .35);
 }

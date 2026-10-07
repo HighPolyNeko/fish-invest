@@ -39,7 +39,10 @@ header { text-align: center; }
   cursor: pointer; touch-action: manipulation;
   transition: transform .07s, box-shadow .15s;
 }
-#fish span { display: block; transform: translateY(-.04em); }
+/* пока canvas не нарисован, показываем обычный текст-эмодзи */
+#fish canvas { display: none; pointer-events: none; }
+#fish.ready canvas { display: block; }
+#fish.ready span { display: none; }
 #fish:hover { box-shadow: 0 10px 40px var(--glow), inset 0 0 0 4px var(--ring-hover); }
 #fish:active { transform: scale(.92); }
 .float {
@@ -65,6 +68,7 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
   display: flex; align-items: center; gap: 10px; background: var(--card);
   border-radius: 12px; padding: 10px 12px; margin-bottom: 6px;
 }
+.row .ico { flex: none; width: 36px; font-size: 28px; line-height: 1; text-align: center; }
 .row .info { flex: 1; min-width: 0; }
 .row .name { font-weight: 600; }
 .row .desc { color: var(--hint); font-size: 12px; }
@@ -80,6 +84,20 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
 }
 .bar { height: 8px; margin: 8px 0 4px; border-radius: 999px; background: var(--track); overflow: hidden; }
 .bar-fill { height: 100%; width: 0; border-radius: 999px; background: var(--good); transition: width .3s; }
+#head { position: relative; }
+#settings-btn {
+  position: absolute; top: 0; right: 0; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--card); font-size: 18px; line-height: 1; cursor: pointer;
+}
+dialog#settings {
+  width: min(92vw, 360px); padding: 18px; border: 0; border-radius: 14px;
+  background: var(--panel-right); color: var(--text); box-shadow: 0 10px 40px var(--shadow);
+}
+dialog#settings::backdrop { background: var(--backdrop); }
+dialog#settings h2 { margin: 0 0 8px; }
+dialog#settings .buy { width: 100%; margin-top: 16px; }
+.set-label { margin: 12px 0 6px; font-size: 14px; color: var(--hint); }
+input[type="range"] { width: 100%; accent-color: var(--btn); }
 .note { color: var(--hint); font-size: 12px; margin-top: 18px; }
 .link { background: none; border: 0; color: var(--hint); text-decoration: underline; font-size: 12px; padding: 6px 0; cursor: pointer; }
 .hidden { display: none; }

@@ -27,6 +27,7 @@
     var x = (ev.clientX || r.left + r.width / 2) - r.left;
     var y = (ev.clientY || r.top + r.height / 2) - r.top;
     F.floatText('+' + F.fmt(p), x, y);
+    F.playBubble();
     F.haptic('light');
     F.render();
   });
