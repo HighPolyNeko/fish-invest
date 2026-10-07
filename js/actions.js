@@ -7,10 +7,11 @@
   document.addEventListener('keydown', touch);
 
   F.buyBusiness = function (b) {
-    var c = F.costN(b, F.amount);
+    var n = F.amountFor(b);
+    var c = F.costN(b, n);
     if (F.S.money < c) return;
     F.S.money -= c;
-    F.S.owned[b.id] += F.amount;
+    F.S.owned[b.id] += n;
     F.haptic('light');
     F.render(); F.save();
   };
@@ -41,7 +42,7 @@
 
   document.querySelectorAll('#amounts button').forEach(function (b) {
     b.addEventListener('click', function () {
-      F.amount = parseInt(b.dataset.n, 10);
+      F.amount = b.dataset.n === 'max' ? 'max' : parseInt(b.dataset.n, 10);
       document.querySelectorAll('#amounts button').forEach(function (x) { x.classList.remove('on'); });
       b.classList.add('on');
       F.render();

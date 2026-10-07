@@ -131,9 +131,10 @@
       if (!visible) return;
       e.desc.textContent = b.desc + ' (' + fmt(b.cps * F.mult()) + ' €/сек каждый)';
       e.cnt.textContent = S.owned[b.id];
-      var c = F.costN(b, F.amount);
+      var n = F.amountFor(b);
+      var c = F.costN(b, n);
       e.price.textContent = fmt(c) + ' €';
-      e.act.textContent = 'Купить ×' + F.amount;
+      e.act.textContent = 'Купить ×' + n;
       e.btn.disabled = S.money < c;
     });
 
