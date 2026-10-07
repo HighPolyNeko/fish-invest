@@ -84,7 +84,7 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
 }
 .bar { height: 8px; margin: 8px 0 4px; border-radius: 999px; background: var(--track); overflow: hidden; }
 .bar-fill { height: 100%; width: 0; border-radius: 999px; background: var(--good); transition: width .3s; }
-#head { position: relative; }
+#head { position: relative; padding: 0 42px; }   /* место под кнопку настроек */
 #settings-btn {
   position: absolute; top: 0; right: 0; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
   background: var(--card); font-size: 18px; line-height: 1; cursor: pointer;
