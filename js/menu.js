@@ -13,6 +13,21 @@
       b.classList.toggle('on', b.dataset.fmt === F.settings.numfmt);
     });
   }
+  function syncCurrency() {
+    var box = $('currencies');
+    box.textContent = '';
+    F.CURRENCIES.forEach(function (c) {
+      var b = document.createElement('button');
+      b.textContent = c.sym + ' ' + c.name;
+      b.classList.toggle('on', F.settings.currency === c.sym);
+      b.addEventListener('click', function () {
+        F.settings.currency = c.sym;
+        F.saveSettings(); syncCurrency();
+        F.render();   // сразу перерисовать все суммы
+      });
+      box.appendChild(b);
+    });
+  }
   function syncVolume() {
     vol.value = Math.round(F.settings.volume * 100);
     volText.textContent = vol.value + '%';
@@ -47,7 +62,7 @@
   F.refreshMenus = function () { if (dlg.open) syncCosmetics(); };
 
   $('settings-btn').addEventListener('click', function () {
-    syncTheme(); syncNumFmt(); syncVolume(); syncCosmetics();
+    syncTheme(); syncNumFmt(); syncCurrency(); syncVolume(); syncCosmetics();
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
   });
   $('settings-close').addEventListener('click', function () { dlg.close(); });

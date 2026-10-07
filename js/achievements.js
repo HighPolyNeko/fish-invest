@@ -135,7 +135,7 @@
       var ico = document.createElement('div'); ico.className = 'ico'; ico.textContent = got ? '🏆' : '🔒';
       var info = document.createElement('div'); info.className = 'info';
       var name = document.createElement('div'); name.className = 'name'; name.textContent = a.name;
-      var hint = document.createElement('div'); hint.className = 'desc'; hint.textContent = a.hint;
+      var hint = document.createElement('div'); hint.className = 'desc'; hint.textContent = F.cx(a.hint);
       var rew = document.createElement('div'); rew.className = 'desc reward';
       rew.textContent = 'Награда: ' + (got ? F.rewardText(a.reward) : '???');
       info.appendChild(name); info.appendChild(hint); info.appendChild(rew);

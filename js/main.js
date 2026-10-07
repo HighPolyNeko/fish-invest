@@ -3,7 +3,7 @@
   var F = window.Fish;
 
   function offlineText(gain) {
-    return 'Пока тебя не было, дяди заработали ' + F.fmt(gain) + ' € (' + Math.round(F.offlineEff() * 100) + '% от обычного).';
+    return 'Пока тебя не было, дяди заработали ' + F.fmt(gain) + ' ' + F.cur() + ' (' + Math.round(F.offlineEff() * 100) + '% от обычного).';
   }
 
   var lastTick = Date.now();

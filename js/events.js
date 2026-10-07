@@ -8,7 +8,7 @@
     function () {
       var bonus = Math.max(F.cps() * 45, F.clickPower() * 30);
       F.earn(bonus);
-      return 'Редкая рыба! +' + fmt(bonus) + ' €';
+      return 'Редкая рыба! +' + fmt(bonus) + ' ' + F.cur();
     },
     function () {
       F.addBuff('rush', 'prod', 7, 30, 'Час пик дядей: доход ×7');
@@ -21,7 +21,7 @@
     function () {
       var bonus = Math.max(F.S.money * 0.1, F.cps() * 20);
       F.earn(bonus);
-      return 'Дядя вернул долг. +' + fmt(bonus) + ' €';
+      return 'Дядя вернул долг. +' + fmt(bonus) + ' ' + F.cur();
     }
   ];
 
@@ -29,7 +29,7 @@
     function () {
       var loss = F.S.money * 0.1;
       F.S.money -= loss;
-      return 'Ты вложился по совету дяди. Дядя теперь недоступен. −' + fmt(loss) + ' €';
+      return 'Ты вложился по совету дяди. Дядя теперь недоступен. −' + fmt(loss) + ' ' + F.cur();
     },
     function () {
       F.addBuff('leak', 'prod', 0.5, 30, 'Аквариум течёт: доход ×0.5');

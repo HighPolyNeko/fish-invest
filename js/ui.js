@@ -64,7 +64,7 @@
     var S = F.S, raw = 0;
     F.BUSINESS.forEach(function (b) { raw += S.owned[b.id] * b.cps; });
     var lines = [];
-    lines.push('ДОХОД В СЕКУНДУ: ' + fmt(F.cps()) + ' €');
+    lines.push('ДОХОД В СЕКУНДУ: ' + fmt(F.cps()) + ' ' + F.cur());
     lines.push('= бизнесы ' + fmt(raw) + ' × множитель ' + F.mult().toFixed(2));
     if (F.autoRate() > 0) {
       lines.push('+ автоклики дядей ' + fmt(F.autoCps()) + ' (' + F.autoRate().toFixed(2) + ' клика в секунду)');
@@ -78,7 +78,7 @@
     lines.push('• временные события: ×' + F.buffMult('prod').toFixed(2));
     lines.push('• достижения: ×' + F.achMult('prod').toFixed(2));
     lines.push('');
-    lines.push('ДОХОД ЗА КЛИК: ' + fmt(F.clickPower()) + ' €');
+    lines.push('ДОХОД ЗА КЛИК: ' + fmt(F.clickPower()) + ' ' + F.cur());
     lines.push('= ' + fmt(F.clickUpMult() * F.prestigeMult()) + ' (клик × улучшения клика × доверие)');
     lines.push('+ ' + fmt(F.baseCps() * 0.02) + ' (2% от дохода бизнесов в секунду, поэтому цифра за клик растёт вместе с бизнесом)');
     lines.push('× ' + F.buffMult('click').toFixed(2) + ' (временные события)');
@@ -87,7 +87,7 @@
     F.BUSINESS.forEach(function (b) {
       if (S.owned[b.id] > 0) {
         if (!any) { lines.push(''); lines.push('ПО БИЗНЕСАМ:'); any = true; }
-        lines.push('• ' + b.name + ' ×' + S.owned[b.id] + ': ' + fmt(S.owned[b.id] * b.cps * F.mult()) + ' €/сек');
+        lines.push('• ' + b.name + ' ×' + S.owned[b.id] + ': ' + fmt(S.owned[b.id] * b.cps * F.mult()) + ' ' + F.cur() + '/сек');
       }
     });
     return lines.join('\n');
@@ -120,8 +120,8 @@
   F.render = function () {
     var S = F.S;
     if ($('why').open) $('why-body').textContent = breakdownText();
-    $('money').textContent = fmt(S.money) + ' €';
-    $('cps').textContent = fmt(F.cps()) + ' € в секунду · ' + fmt(F.clickPower()) + ' € за клик';
+    $('money').textContent = fmt(S.money) + ' ' + F.cur();
+    $('cps').textContent = fmt(F.cps()) + ' ' + F.cur() + ' в секунду · ' + fmt(F.clickPower()) + ' ' + F.cur() + ' за клик';
     renderBuffs();
 
     F.BUSINESS.forEach(function (b) {
@@ -129,11 +129,11 @@
       var visible = b.id === F.BUSINESS[0].id || S.owned[b.id] > 0 || S.total >= b.base * 0.4;
       e.row.classList.toggle('hidden', !visible);
       if (!visible) return;
-      e.desc.textContent = b.desc + ' (' + fmt(b.cps * F.mult()) + ' €/сек каждый)';
+      e.desc.textContent = b.desc + ' (' + fmt(b.cps * F.mult()) + ' ' + F.cur() + '/сек каждый)';
       e.cnt.textContent = S.owned[b.id];
       var n = F.amountFor(b);
       var c = F.costN(b, n);
-      e.price.textContent = fmt(c) + ' €';
+      e.price.textContent = fmt(c) + ' ' + F.cur();
       e.act.textContent = 'Купить ×' + n;
       e.btn.disabled = S.money < c;
     });
@@ -145,7 +145,7 @@
       e.row.classList.toggle('hidden', !visible);
       if (!visible) return;
       anyUp = true;
-      e.btn.textContent = fmt(u.cost) + ' €';
+      e.btn.textContent = fmt(u.cost) + ' ' + F.cur();
       e.btn.disabled = S.money < u.cost;
     });
     $('ups-wrap').classList.toggle('hidden', !anyUp);
@@ -157,16 +157,16 @@
     claim.classList.toggle('hidden', gain < 1);
     $('p-desc').textContent = (gain >= 1
       ? 'Очки копятся: можно забрать сейчас +' + gain + ' или подождать, пока их станет больше. Бизнес и улучшения при выходе сгорят.'
-      : 'Нужно заработать за этот заход минимум 1 млн €, тогда дяди начнут доверять.')
+      : 'Нужно заработать за этот заход минимум 1 млн ' + F.cur() + ', тогда дяди начнут доверять.')
       + ' Свободное доверие даёт +' + (F.trustFree() * 10) + '% к доходу (всего заработано очков: ' + S.prestige + ').';
     // доверие = floor(sqrt(заработано за заход / 1 млн)): n-е очко открывается на n² млн €,
     // значит каждое следующее дороже предыдущего
     var from = gain * gain * 1e6, to = (gain + 1) * (gain + 1) * 1e6;
     var left = to - S.total, rate = F.cps();
     $('p-bar').style.width = Math.min(100, Math.max(0, (S.total - from) / (to - from) * 100)) + '%';
-    $('p-bar-text').textContent = 'Следующее очко (всего +' + (gain + 1) + ') через ' + fmt(left) + ' € · '
+    $('p-bar-text').textContent = 'Следующее очко (всего +' + (gain + 1) + ') через ' + fmt(left) + ' ' + F.cur() + ' · '
       + (rate > 0 ? 'примерно ' + F.fmtTime(left / rate) + ' при текущем доходе' : 'без дохода не накопить');
-    $('p-cost').textContent = 'Это очко стоит ещё ' + fmt(to - from) + ' €, следующее после него дороже на 2 млн €.';
+    $('p-cost').textContent = 'Это очко стоит ещё ' + fmt(to - from) + ' ' + F.cur() + ', следующее после него дороже на 2 млн ' + F.cur() + '.';
     F.renderPerks();
     var pb = $('p-btn');
     pb.disabled = gain < 1;
