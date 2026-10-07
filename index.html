@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/style.css">
-<script src="js/settings.js"></script>
+<script src="js/core/settings.js"></script>
 </head>
 <body>
   <div id="news" class="hidden" aria-label="Новости"><div id="news-track"><span id="news-text"></span></div></div>
@@ -120,22 +120,24 @@
     <button class="buy" id="ach-close">Закрыть</button>
   </dialog>
 
-  <!-- Скрипты подключаются по порядку; общее состояние лежит в window.Fish -->
+  <!-- Скрипты подключаются по порядку, общее состояние лежит в window.Fish.
+       data/: данные (игровые и новости); js/core/: настройки, состояние, экономика; js/game/: правила игры;
+       js/ui/: интерфейс; js/main.js: запуск. -->
   <script src="data/news.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/util.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/economy.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/actions.js"></script>
-  <script src="js/perks.js"></script>
-  <script src="js/events.js"></script>
-  <script src="js/achievements.js"></script>
-  <script src="js/fish.js"></script>
-  <script src="js/cosmetics.js"></script>
-  <script src="js/news.js"></script>
-  <script src="js/sound.js"></script>
-  <script src="js/menu.js"></script>
+  <script src="data/game.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/state.js"></script>
+  <script src="js/core/economy.js"></script>
+  <script src="js/ui/render.js"></script>
+  <script src="js/game/actions.js"></script>
+  <script src="js/game/perks.js"></script>
+  <script src="js/game/events.js"></script>
+  <script src="js/game/achievements.js"></script>
+  <script src="js/ui/fish.js"></script>
+  <script src="js/ui/cosmetics.js"></script>
+  <script src="js/ui/news.js"></script>
+  <script src="js/ui/sound.js"></script>
+  <script src="js/ui/menu.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
