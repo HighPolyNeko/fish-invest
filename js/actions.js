@@ -1,0 +1,81 @@
+// Действия игрока: покупки, клик по рыбе, выход в плюс, сброс.
+(function () {
+  var F = window.Fish, $ = F.$;
+
+  F.buyBusiness = function (b) {
+    var c = F.costN(b, F.amount);
+    if (F.S.money < c) return;
+    F.S.money -= c;
+    F.S.owned[b.id] += F.amount;
+    F.haptic('light');
+    F.render(); F.save();
+  };
+
+  F.buyUpgrade = function (u) {
+    if (F.S.bought[u.id] || F.S.money < u.cost) return;
+    F.S.money -= u.cost;
+    F.S.bought[u.id] = true;
+    F.haptic('medium');
+    F.render(); F.save();
+  };
+
+  $('fish').addEventListener('click', function (ev) {
+    var p = F.clickPower();
+    F.earn(p);
+    F.S.clicks += 1;
+    var r = $('stage').getBoundingClientRect();
+    var x = (ev.clientX || r.left + r.width / 2) - r.left;
+    var y = (ev.clientY || r.top + r.height / 2) - r.top;
+    F.floatText('+' + F.fmt(p), x, y);
+    F.haptic('light');
+    F.render();
+  });
+
+  document.querySelectorAll('#amounts button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      F.amount = parseInt(b.dataset.n, 10);
+      document.querySelectorAll('#amounts button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      F.render();
+    });
+  });
+
+  // кнопка с подтверждением вторым нажатием
+  function armed(btn, armedText, action) {
+    var timer = null;
+    btn.addEventListener('click', function () {
+      if (btn.disabled) return;
+      if (btn.dataset.armed) {
+        clearTimeout(timer);
+        delete btn.dataset.armed;
+        action();
+        return;
+      }
+      var original = btn.textContent;
+      btn.dataset.armed = '1';
+      btn.textContent = armedText;
+      timer = setTimeout(function () {
+        delete btn.dataset.armed;
+        btn.textContent = original;
+        F.render();
+      }, 3000);
+    });
+  }
+
+  armed($('p-btn'), 'Точно? Нажми ещё раз', function () {
+    var gain = F.prestigeGain();
+    if (gain < 1) return;
+    F.S = F.fresh(F.S.prestige + gain, F.S.allTime);
+    F.toast('Ты вышел в плюс на бумаге. Дяди довольны, доверие +' + gain + '.');
+    F.render(); F.save();
+  });
+
+  armed($('reset'), 'Точно сбросить? Нажми ещё раз', function () {
+    F.S = F.fresh();
+    F.buffs = {};
+    try { localStorage.removeItem(F.CONFIG.KEY); } catch (e) {}
+    F.toast('Прогресс сброшен.');
+    $('reset').textContent = 'Сбросить весь прогресс';
+    F.render();
+  });
+})();

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Рынок редкой рыбы: кликер</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <section class="col" id="left">
+      <header id="head">
+        <h1 id="title">🐠 Рынок редкой рыбы</h1>
+        <div id="money">0 €</div>
+        <div id="cps">0 € в секунду</div>
+      </header>
+      <div id="buffs"></div>
+      <div id="stage"><button id="fish" aria-label="Редкая рыба"><span>🐟</span></button></div>
+      <div id="toast"></div>
+    </section>
+
+    <section class="col" id="center">
+      <details id="why">
+        <summary>Откуда доход и бонусы</summary>
+        <div id="why-body"></div>
+      </details>
+
+      <div id="prest">
+        <h2>Выйти в плюс (на бумаге)</h2>
+        <div class="row">
+          <div class="info">
+            <div class="name" id="p-title">Доверие дядей: 0</div>
+            <div class="desc" id="p-desc"></div>
+          </div>
+          <button class="buy" id="p-btn" disabled>Пока нельзя</button>
+        </div>
+      </div>
+
+      <div id="foot">
+        <div class="note">
+          Пародия на мем про «рынок редкой рыбы» и «множество дядей». Игра, не инвестсовет.
+          Все цифры внутри игры выдуманы для игры и не отражают реальных цен или доходности.
+        </div>
+        <button class="link" id="reset">Сбросить весь прогресс</button>
+      </div>
+    </section>
+
+    <section class="col" id="right">
+      <div class="seg" id="amounts">
+        <button data-n="1" class="on">×1</button>
+        <button data-n="10">×10</button>
+        <button data-n="100">×100</button>
+      </div>
+
+      <div id="shopwrap">
+        <h2>Бизнес</h2>
+        <div id="shop"></div>
+      </div>
+
+      <div id="ups-wrap" class="hidden">
+        <h2>Улучшения</h2>
+        <div id="ups"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Скрипты подключаются по порядку; общее состояние лежит в window.Fish -->
+  <script src="js/data.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/economy.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/actions.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
