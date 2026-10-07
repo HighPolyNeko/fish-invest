@@ -1,0 +1,31 @@
+name: Promote main
+
+# Запускать вручную после выката релиза на прод: main догоняет коммит релиза (только fast-forward).
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: 'Релизная ветка, например release/1.4.2'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fast-forward main
+        env:
+          RELEASE: ${{ inputs.release_branch }}
+        run: |
+          case "$RELEASE" in
+            release/*) ;;
+            *) echo "Нужна ветка вида release/X.Y.Z"; exit 1 ;;
+          esac
+          git checkout main
+          git merge --ff-only "origin/$RELEASE"
+          git push origin main

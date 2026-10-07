@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Рынок редкой рыбы: кликер</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: var(--tg-theme-bg-color, #ffffff);
+    --text: var(--tg-theme-text-color, #1c1c1e);
+    --hint: var(--tg-theme-hint-color, #7d7d85);
+    --card: var(--tg-theme-secondary-bg-color, #f2f2f7);
+    --btn: var(--tg-theme-button-color, #2481cc);
+    --btn-text: var(--tg-theme-button-text-color, #ffffff);
+    --good: #2e9e5b;
+    --bad: #d64545;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 12px 12px 40px; background: var(--bg); color: var(--text);
+    font: 16px/1.35 -apple-system, system-ui, Roboto, sans-serif;
+    user-select: none; -webkit-user-select: none;
+  }
+  header { text-align: center; }
+  #money { font-size: 30px; font-weight: 700; }
+  #cps { color: var(--hint); font-size: 14px; }
+  #stage { position: relative; height: 230px; margin: 6px 0; overflow: hidden; }
+  #fish {
+    position: absolute; left: 50%; top: 50%; width: 150px; height: 150px;
+    margin: -75px 0 0 -75px; border: 0; border-radius: 50%; font-size: 84px; line-height: 1;
+    background: var(--card); cursor: pointer; touch-action: manipulation;
+    transition: transform .07s;
+  }
+  #fish:active { transform: scale(.92); }
+  .float {
+    position: absolute; pointer-events: none; font-weight: 700; color: var(--good);
+    animation: up .9s ease-out forwards; white-space: nowrap;
+  }
+  @keyframes up { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-60px); } }
+  .evt {
+    position: absolute; border: 0; background: transparent; font-size: 44px; cursor: pointer;
+    animation: pulse .6s infinite alternate; touch-action: manipulation;
+  }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.18); } }
+  #toast {
+    min-height: 40px; text-align: center; font-size: 14px; color: var(--hint); margin-bottom: 6px;
+  }
+  h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .seg { display: flex; gap: 6px; margin-bottom: 8px; }
+  .seg button {
+    flex: 1; padding: 8px; border: 0; border-radius: 8px; background: var(--card); color: var(--text); font-size: 14px;
+  }
+  .seg button.on { background: var(--btn); color: var(--btn-text); }
+  .row {
+    display: flex; align-items: center; gap: 10px; background: var(--card);
+    border-radius: 12px; padding: 10px 12px; margin-bottom: 6px;
+  }
+  .row .info { flex: 1; min-width: 0; }
+  .row .name { font-weight: 600; }
+  .row .desc { color: var(--hint); font-size: 12px; }
+  .row .cnt { font-size: 22px; font-weight: 700; min-width: 34px; text-align: center; }
+  .buy {
+    border: 0; border-radius: 10px; padding: 9px 10px; min-width: 96px; font-size: 14px; font-weight: 600;
+    background: var(--btn); color: var(--btn-text); cursor: pointer; touch-action: manipulation;
+  }
+  .buy[disabled] { opacity: .35; cursor: default; }
+  .note { color: var(--hint); font-size: 12px; margin-top: 18px; }
+  .link { background: none; border: 0; color: var(--hint); text-decoration: underline; font-size: 12px; padding: 6px 0; }
+  .hidden { display: none; }
+  details#why { background: var(--card); border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; }
+  details#why summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+  #why-body { white-space: pre-line; font-size: 13px; color: var(--hint); margin-top: 8px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <header>
+    <div id="money">0 €</div>
+    <div id="cps">0 € в секунду</div>
+  </header>
+
+  <div id="stage"><button id="fish" aria-label="Редкая рыба">🐟</button></div>
+  <div id="toast"></div>
+
+  <details id="why">
+    <summary>Откуда доход и бонусы</summary>
+    <div id="why-body"></div>
+  </details>
+
+  <div class="seg" id="amounts">
+    <button data-n="1" class="on">×1</button>
+    <button data-n="10">×10</button>
+    <button data-n="100">×100</button>
+  </div>
+
+  <h2>Бизнес</h2>
+  <div id="shop"></div>
+
+  <div id="ups-wrap" class="hidden">
+    <h2>Улучшения</h2>
+    <div id="ups"></div>
+  </div>
+
+  <h2>Выйти в плюс (на бумаге)</h2>
+  <div class="row">
+    <div class="info">
+      <div class="name" id="p-title">Доверие дядей: 0</div>
+      <div class="desc" id="p-desc"></div>
+    </div>
+    <button class="buy" id="p-btn" disabled>Пока нельзя</button>
+  </div>
+
+  <div class="note">
+    Пародия на мем про «рынок редкой рыбы» и «множество дядей». Игра, не инвестсовет.
+    Все цифры внутри игры выдуманы для игры и не отражают реальных цен или доходности.
+  </div>
+  <button class="link" id="reset">Сбросить весь прогресс</button>
+
+<script>
+(function () {
+  var tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+
+  var KEY = 'rare-fish-idle-v1';
+  var GROWTH = 1.15;
+  var OFFLINE_EFF = 0.5;
+  var OFFLINE_CAP = 8 * 3600;
+
+  var BUSINESS = [
+    { id: 'uncle',   name: 'Дядя',                 desc: 'Знает человека на рынке. Какого, не говорит.', base: 15,      cps: 0.1 },
+    { id: 'tank',    name: 'Аквариум',             desc: 'Рыба в нём не редкая, но дядя уверяет, что редкая.', base: 100,     cps: 1 },
+    { id: 'broker',  name: 'Дядя-брокер',          desc: 'Гарантирует доходность. Чью именно, не уточняет.', base: 1100,    cps: 8 },
+    { id: 'field',   name: 'Поле в Литве',         desc: 'Как оно связано с рыбой, спрашивать не принято.', base: 12000,   cps: 47 },
+    { id: 'cluster', name: 'Рыбный кластер',       desc: 'Слово «кластер» добавляет к цене ещё ноль.', base: 130000,  cps: 260 },
+    { id: 'fund',    name: 'Фонд множества дядей', desc: 'Дядя дяди тоже дядя. Все в доле.', base: 1.4e6,   cps: 1400 },
+    { id: 'rare',    name: 'Реально редкая рыба',  desc: 'Единственная в мире. Дядя говорит, таких уже три.', base: 2e7,     cps: 7800 }
+  ];
+
+  var UPGRADES = [
+    { id: 'card',   name: 'Визитка дяди',         desc: 'Доход с клика ×2',     cost: 200,    type: 'click', val: 2 },
+    { id: 'voice',  name: 'Уверенный тон',        desc: 'Доход с клика ×2',     cost: 2500,   type: 'click', val: 2 },
+    { id: 'today',  name: 'Скидка только сегодня', desc: 'Весь доход ×1.5',      cost: 15000,  type: 'prod',  val: 1.5 },
+    { id: 'chat',   name: 'Закрытый чат дядей',   desc: 'Доход с клика ×3',     cost: 90000,  type: 'click', val: 3 },
+    { id: 'screen', name: 'Скриншот чужой выписки', desc: 'Весь доход ×2',      cost: 400000, type: 'prod',  val: 2 }
+  ];
+
+  function fresh(prestige, allTime) {
+    var owned = {}, bought = {};
+    BUSINESS.forEach(function (b) { owned[b.id] = 0; });
+    return {
+      money: 0, total: 0, allTime: allTime || 0, clicks: 0,
+      owned: owned, bought: bought, prestige: prestige || 0, last: Date.now()
+    };
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      var base = fresh();
+      base.money = +s.money || 0;
+      base.total = +s.total || 0;
+      base.allTime = +s.allTime || 0;
+      base.clicks = +s.clicks || 0;
+      base.prestige = +s.prestige || 0;
+      base.last = +s.last || Date.now();
+      BUSINESS.forEach(function (b) { base.owned[b.id] = +(s.owned && s.owned[b.id]) || 0; });
+      UPGRADES.forEach(function (u) { if (s.bought && s.bought[u.id]) base.bought[u.id] = true; });
+      return base;
+    } catch (e) { return null; }
+  }
+
+  function save() {
+    S.last = Date.now();
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+
+  var S = load() || fresh();
+  var amount = 1;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---------- форматирование ----------
+  var UNITS = ['', ' тыс', ' млн', ' млрд', ' трлн', ' квдр', ' квнт', ' скст'];
+  function fmt(n) {
+    if (!isFinite(n)) return '∞';
+    if (n < 10) return n.toFixed(2).replace(/\.?0+$/, '');
+    if (n < 1000) return String(Math.floor(n));
+    var idx = Math.floor(Math.log10(n) / 3);
+    if (idx >= UNITS.length) return n.toExponential(2);
+    var v = n / Math.pow(10, idx * 3);
+    var s = v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : String(Math.floor(v));
+    return s + UNITS[idx];
+  }
+
+  // ---------- экономика ----------
+  function uncles() { return S.owned.uncle + S.owned.broker; }
+  function prodUpMult() {
+    var m = 1;
+    UPGRADES.forEach(function (u) { if (u.type === 'prod' && S.bought[u.id]) m *= u.val; });
+    return m;
+  }
+  function clickUpMult() {
+    var m = 1;
+    UPGRADES.forEach(function (u) { if (u.type === 'click' && S.bought[u.id]) m *= u.val; });
+    return m;
+  }
+  function prestigeMult() { return 1 + 0.1 * S.prestige; }
+  function mult() { return (1 + 0.01 * uncles()) * prestigeMult() * prodUpMult(); }
+  function cps() {
+    var sum = 0;
+    BUSINESS.forEach(function (b) { sum += S.owned[b.id] * b.cps; });
+    return sum * mult();
+  }
+  function clickPower() { return clickUpMult() * prestigeMult() + cps() * 0.02; }
+  function costN(b, n) {
+    return Math.ceil(b.base * Math.pow(GROWTH, S.owned[b.id]) * (Math.pow(GROWTH, n) - 1) / (GROWTH - 1));
+  }
+  function earn(x) { S.money += x; S.total += x; S.allTime += x; }
+  function prestigeGain() { return Math.floor(Math.sqrt(S.total / 1e6)); }
+
+  // ---------- интерфейс ----------
+  var toastTimer = null;
+  function toast(msg) {
+    $('toast').textContent = msg;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').textContent = ''; }, 5000);
+  }
+  function haptic(kind) {
+    try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(kind || 'light'); } catch (e) {}
+  }
+  function floatText(text, x, y) {
+    var el = document.createElement('div');
+    el.className = 'float';
+    el.textContent = text;
+    el.style.left = Math.max(0, x - 20) + 'px';
+    el.style.top = Math.max(0, y - 30) + 'px';
+    $('stage').appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 900);
+  }
+
+  var shopEls = {}, upEls = {};
+
+  function buildShop() {
+    var shop = $('shop');
+    BUSINESS.forEach(function (b) {
+      var row = document.createElement('div'); row.className = 'row';
+      var info = document.createElement('div'); info.className = 'info';
+      var name = document.createElement('div'); name.className = 'name'; name.textContent = b.name;
+      var desc = document.createElement('div'); desc.className = 'desc';
+      var cnt = document.createElement('div'); cnt.className = 'cnt';
+      var btn = document.createElement('button'); btn.className = 'buy';
+      info.appendChild(name); info.appendChild(desc);
+      row.appendChild(info); row.appendChild(cnt); row.appendChild(btn);
+      shop.appendChild(row);
+      btn.addEventListener('click', function () { buyBusiness(b); });
+      shopEls[b.id] = { row: row, desc: desc, cnt: cnt, btn: btn };
+    });
+  }
+
+  function buildUps() {
+    var ups = $('ups');
+    UPGRADES.forEach(function (u) {
+      var row = document.createElement('div'); row.className = 'row';
+      var info = document.createElement('div'); info.className = 'info';
+      var name = document.createElement('div'); name.className = 'name'; name.textContent = u.name;
+      var desc = document.createElement('div'); desc.className = 'desc'; desc.textContent = u.desc;
+      var btn = document.createElement('button'); btn.className = 'buy';
+      info.appendChild(name); info.appendChild(desc);
+      row.appendChild(info); row.appendChild(btn);
+      ups.appendChild(row);
+      btn.addEventListener('click', function () { buyUpgrade(u); });
+      upEls[u.id] = { row: row, btn: btn };
+    });
+  }
+
+  function breakdownText() {
+    var raw = 0;
+    BUSINESS.forEach(function (b) { raw += S.owned[b.id] * b.cps; });
+    var lines = [];
+    lines.push('ДОХОД В СЕКУНДУ: ' + fmt(cps()) + ' €');
+    lines.push('= бизнесы ' + fmt(raw) + ' × множитель ' + mult().toFixed(2));
+    lines.push('');
+    lines.push('МНОЖИТЕЛЬ = (1 + дяди) × (1 + доверие) × улучшения');
+    lines.push('• дяди: +' + uncles() + '% (дядей и брокеров: ' + uncles() + ', каждый даёт +1% ко всему)');
+    lines.push('• доверие дядей: +' + (S.prestige * 10) + '% (за выходы в плюс, по +10% за единицу)');
+    lines.push('• улучшения на доход: ×' + fmt(prodUpMult()));
+    lines.push('');
+    lines.push('ДОХОД ЗА КЛИК: ' + fmt(clickPower()) + ' €');
+    lines.push('= ' + fmt(clickUpMult() * prestigeMult()) + ' (клик × улучшения клика × доверие)');
+    lines.push('+ ' + fmt(cps() * 0.02) + ' (2% от дохода в секунду, поэтому цифра за клик растёт вместе с бизнесом)');
+    var any = false;
+    BUSINESS.forEach(function (b) {
+      if (S.owned[b.id] > 0) {
+        if (!any) { lines.push(''); lines.push('ПО БИЗНЕСАМ:'); any = true; }
+        lines.push('• ' + b.name + ' ×' + S.owned[b.id] + ': ' + fmt(S.owned[b.id] * b.cps * mult()) + ' €/сек');
+      }
+    });
+    return lines.join('\n');
+  }
+
+  function render() {
+    if ($('why').open) $('why-body').textContent = breakdownText();
+    $('money').textContent = fmt(S.money) + ' €';
+    $('cps').textContent = fmt(cps()) + ' € в секунду · ' + fmt(clickPower()) + ' € за клик';
+
+    BUSINESS.forEach(function (b) {
+      var e = shopEls[b.id];
+      var visible = b.id === BUSINESS[0].id || S.owned[b.id] > 0 || S.total >= b.base * 0.4;
+      e.row.classList.toggle('hidden', !visible);
+      if (!visible) return;
+      var own = S.owned[b.id];
+      var perOne = b.cps * mult();
+      e.desc.textContent = b.desc + ' (' + fmt(perOne) + ' €/сек каждый)';
+      e.cnt.textContent = own;
+      var c = costN(b, amount);
+      e.btn.textContent = '×' + amount + ': ' + fmt(c) + ' €';
+      e.btn.disabled = S.money < c;
+    });
+
+    var anyUp = false;
+    UPGRADES.forEach(function (u) {
+      var e = upEls[u.id];
+      var visible = !S.bought[u.id] && S.total >= u.cost * 0.5;
+      e.row.classList.toggle('hidden', !visible);
+      if (!visible) return;
+      anyUp = true;
+      e.btn.textContent = fmt(u.cost) + ' €';
+      e.btn.disabled = S.money < u.cost;
+    });
+    $('ups-wrap').classList.toggle('hidden', !anyUp);
+
+    var gain = prestigeGain();
+    $('p-title').textContent = 'Доверие дядей: ' + S.prestige + ' (+' + (S.prestige * 10) + '% к доходу)';
+    $('p-desc').textContent = gain >= 1
+      ? 'Начать заново и получить ещё +' + gain + ' доверия. Бизнес и улучшения сгорят.'
+      : 'Нужно заработать за этот заход минимум 1 млн €, тогда дяди начнут доверять.';
+    var pb = $('p-btn');
+    pb.disabled = gain < 1;
+    if (!pb.dataset.armed) pb.textContent = gain >= 1 ? 'Выйти в плюс' : 'Пока нельзя';
+  }
+
+  // ---------- действия ----------
+  function buyBusiness(b) {
+    var c = costN(b, amount);
+    if (S.money < c) return;
+    S.money -= c;
+    S.owned[b.id] += amount;
+    haptic('light');
+    render(); save();
+  }
+  function buyUpgrade(u) {
+    if (S.bought[u.id] || S.money < u.cost) return;
+    S.money -= u.cost;
+    S.bought[u.id] = true;
+    haptic('medium');
+    render(); save();
+  }
+
+  $('fish').addEventListener('click', function (ev) {
+    var p = clickPower();
+    earn(p);
+    S.clicks += 1;
+    var r = $('stage').getBoundingClientRect();
+    var x = (ev.clientX || r.left + r.width / 2) - r.left;
+    var y = (ev.clientY || r.top + r.height / 2) - r.top;
+    floatText('+' + fmt(p), x, y);
+    haptic('light');
+    render();
+  });
+
+  document.querySelectorAll('#amounts button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      amount = parseInt(b.dataset.n, 10);
+      document.querySelectorAll('#amounts button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      render();
+    });
+  });
+
+  // кнопка с подтверждением вторым нажатием
+  function armed(btn, armedText, action) {
+    var timer = null;
+    btn.addEventListener('click', function () {
+      if (btn.disabled) return;
+      if (btn.dataset.armed) {
+        clearTimeout(timer);
+        delete btn.dataset.armed;
+        action();
+        return;
+      }
+      var original = btn.textContent;
+      btn.dataset.armed = '1';
+      btn.textContent = armedText;
+      timer = setTimeout(function () {
+        delete btn.dataset.armed;
+        btn.textContent = original;
+        render();
+      }, 3000);
+    });
+  }
+
+  armed($('p-btn'), 'Точно? Нажми ещё раз', function () {
+    var gain = prestigeGain();
+    if (gain < 1) return;
+    S = fresh(S.prestige + gain, S.allTime);
+    toast('Ты вышел в плюс на бумаге. Дяди довольны, доверие +' + gain + '.');
+    render(); save();
+  });
+
+  armed($('reset'), 'Точно сбросить? Нажми ещё раз', function () {
+    S = fresh();
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    toast('Прогресс сброшен.');
+    $('reset').textContent = 'Сбросить весь прогресс';
+    render();
+  });
+
+  // ---------- события ----------
+  function spawnEvent() {
+    var stage = $('stage');
+    var good = Math.random() < 0.75;
+    var el = document.createElement('button');
+    el.className = 'evt';
+    el.textContent = good ? '🐠' : '📞';
+    var w = stage.clientWidth || 300, h = stage.clientHeight || 230;
+    el.style.left = Math.floor(Math.random() * Math.max(10, w - 60)) + 'px';
+    el.style.top = Math.floor(Math.random() * Math.max(10, h - 60)) + 'px';
+    stage.appendChild(el);
+    var gone = false;
+    function remove() {
+      if (gone) return; gone = true;
+      if (el.parentNode) el.parentNode.removeChild(el);
+    }
+    el.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      if (good) {
+        var bonus = Math.max(cps() * 45, clickPower() * 30);
+        earn(bonus);
+        toast('Редкая рыба! +' + fmt(bonus) + ' €');
+        haptic('medium');
+      } else {
+        var loss = S.money * 0.1;
+        S.money -= loss;
+        toast('Ты вложился по совету дяди. Дядя теперь недоступен. −' + fmt(loss) + ' €');
+        haptic('heavy');
+      }
+      remove(); render(); save();
+    });
+    setTimeout(remove, 9000);
+  }
+  function scheduleEvent() {
+    setTimeout(function () { spawnEvent(); scheduleEvent(); }, 45000 + Math.random() * 45000);
+  }
+
+  // ---------- цикл ----------
+  var lastTick = Date.now();
+  function tick() {
+    var now = Date.now();
+    var dt = (now - lastTick) / 1000;
+    lastTick = now;
+    if (dt <= 0) return;
+    if (dt > 5) {
+      var gain = cps() * Math.min(dt, OFFLINE_CAP) * OFFLINE_EFF;
+      if (gain > 0) {
+        earn(gain);
+        toast('Пока тебя не было, дяди заработали ' + fmt(gain) + ' € (половина от обычного).');
+      }
+    } else {
+      earn(cps() * dt);
+    }
+    render();
+  }
+
+  // ---------- старт ----------
+  buildShop();
+  buildUps();
+
+  var away = (Date.now() - S.last) / 1000;
+  if (away > 5) {
+    var offGain = cps() * Math.min(away, OFFLINE_CAP) * OFFLINE_EFF;
+    if (offGain > 0) {
+      earn(offGain);
+      toast('Пока тебя не было, дяди заработали ' + fmt(offGain) + ' € (половина от обычного).');
+    }
+  }
+  S.last = Date.now();
+
+  render();
+  setInterval(tick, 100);
+  setInterval(save, 5000);
+  scheduleEvent();
+  document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
+  window.addEventListener('pagehide', save);
+})();
+</script>
+</body>
+</html>
