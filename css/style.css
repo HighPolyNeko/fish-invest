@@ -80,6 +80,12 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
   background: var(--btn); color: var(--btn-text); cursor: pointer; touch-action: manipulation;
 }
 .buy[disabled] { opacity: .35; cursor: default; }
+.chip {
+  display: inline-block; min-width: 24px; padding: 1px 8px; margin-left: 4px; border-radius: 999px;
+  background: var(--btn); color: var(--btn-text); font-size: 13px; font-weight: 700; text-align: center;
+}
+.bar { height: 8px; margin: 8px 0 4px; border-radius: 999px; background: rgba(127, 127, 127, .25); overflow: hidden; }
+.bar-fill { height: 100%; width: 0; border-radius: 999px; background: var(--good); transition: width .3s; }
 .note { color: var(--hint); font-size: 12px; margin-top: 18px; }
 .link { background: none; border: 0; color: var(--hint); text-decoration: underline; font-size: 12px; padding: 6px 0; cursor: pointer; }
 .hidden { display: none; }
