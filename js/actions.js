@@ -12,7 +12,6 @@
     if (F.S.money < c) return;
     F.S.money -= c;
     F.S.owned[b.id] += n;
-    F.haptic('light');
     F.render(); F.save();
   };
 
@@ -20,7 +19,6 @@
     if (F.S.bought[u.id] || F.S.money < u.cost) return;
     F.S.money -= u.cost;
     F.S.bought[u.id] = true;
-    F.haptic('medium');
     F.render(); F.save();
   };
 
@@ -36,7 +34,6 @@
     var y = (ev.clientY || r.top + r.height / 2) - r.top;
     F.floatText('+' + F.fmt(p), x, y);
     F.playBubble();
-    F.haptic('light');
     F.render();
   });
 

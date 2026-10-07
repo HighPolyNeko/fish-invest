@@ -1,17 +1,10 @@
-// Мелкие помощники: поиск элементов, форматирование чисел, Telegram.
+// Мелкие помощники: поиск элементов, форматирование чисел и времени.
 (function () {
   var F = window.Fish;
-
-  F.tg = window.Telegram && window.Telegram.WebApp;
-  if (F.tg) { try { F.tg.ready(); F.tg.expand(); } catch (e) {} }
 
   F.$ = function (id) { return document.getElementById(id); };
 
   F.pick = function (list) { return list[Math.floor(Math.random() * list.length)]; };
-
-  F.haptic = function (kind) {
-    try { if (F.tg && F.tg.HapticFeedback) F.tg.HapticFeedback.impactOccurred(kind || 'light'); } catch (e) {}
-  };
 
   // секунды в короткую запись: «45 с», «12 мин», «3 ч 20 мин», «2 д 5 ч»
   F.fmtTime = function (sec) {

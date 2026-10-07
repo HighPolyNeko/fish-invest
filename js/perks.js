@@ -109,7 +109,6 @@
     F.S.spent += p.cost;
     F.S.perks[p.id] = true;
     F.toast('Знакомый «' + p.name + '» теперь с тобой. Потрачено доверия: ' + p.cost + '.');
-    F.haptic('medium');
     F.render(); F.save();
   }
 

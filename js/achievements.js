@@ -114,7 +114,6 @@
     });
     if (!won.length) return;
     F.toast('🏆 ' + won.map(function (a) { return a.name + ' (' + F.rewardText(a.reward) + ')'; }).join(' · '));
-    F.haptic('medium');
     F.applyCosmetics();
     F.refreshMenus();
     F.save();
