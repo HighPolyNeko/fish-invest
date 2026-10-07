@@ -61,7 +61,6 @@
       F.S.stats.events += 1;
       F.S.stats[good ? 'good' : 'bad'] += 1;
       F.toast(F.pick(good ? GOOD_EVENTS : BAD_EVENTS)());
-      F.haptic(good ? 'medium' : 'heavy');
       remove(); F.render(); F.save();
     });
     setTimeout(remove, 9000);
