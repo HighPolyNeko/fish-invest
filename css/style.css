@@ -90,14 +90,14 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
   background: var(--card); font-size: 18px; line-height: 1; cursor: pointer;
 }
 dialog#settings {
-  width: min(92vw, 360px); padding: 18px; border: 0; border-radius: 14px;
+  width: min(92vw, 360px); padding: 18px; border: 0; border-radius: 14px; overflow-x: hidden;
   background: var(--panel-right); color: var(--text); box-shadow: 0 10px 40px var(--shadow);
 }
 dialog#settings::backdrop { background: var(--backdrop); }
 dialog#settings h2 { margin: 0 0 8px; }
 dialog#settings .buy { width: 100%; margin-top: 16px; }
 .set-label { margin: 12px 0 6px; font-size: 14px; color: var(--hint); }
-input[type="range"] { width: 100%; accent-color: var(--btn); }
+input[type="range"] { display: block; width: 100%; margin: 0; accent-color: var(--btn); }
 .note { color: var(--hint); font-size: 12px; margin-top: 18px; }
 .link { background: none; border: 0; color: var(--hint); text-decoration: underline; font-size: 12px; padding: 6px 0; cursor: pointer; }
 .hidden { display: none; }
