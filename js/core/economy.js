@@ -28,6 +28,23 @@
     return m;
   };
 
+  // Сколько вех пройдено у бизнеса b и во сколько раз из-за них вырос его доход (×2 за каждую).
+  F.milestonesDone = function (b, owned) {
+    var n = owned === undefined ? F.S.owned[b.id] : owned, done = 0;
+    F.MILESTONES.forEach(function (m) { if (n >= m) done += 1; });
+    var last = F.MILESTONES[F.MILESTONES.length - 1];
+    if (n >= last + F.MILESTONE_STEP) done += Math.floor((n - last) / F.MILESTONE_STEP);
+    return done;
+  };
+  F.milestoneMult = function (b) { return Math.pow(2, F.milestonesDone(b)); };
+  // Следующая веха бизнеса b (после списка идёт каждые MILESTONE_STEP штук).
+  F.nextMilestone = function (b) {
+    var n = F.S.owned[b.id];
+    for (var i = 0; i < F.MILESTONES.length; i++) if (n < F.MILESTONES[i]) return F.MILESTONES[i];
+    var last = F.MILESTONES[F.MILESTONES.length - 1];
+    return last + (Math.floor((n - last) / F.MILESTONE_STEP) + 1) * F.MILESTONE_STEP;
+  };
+
   // Очки доверия, которые не потрачены на знакомых: каждое даёт +10% ко всему.
   F.trustFree = function () { return Math.max(0, F.S.prestige - F.S.spent); };
 
@@ -41,7 +58,7 @@
   // Доход от бизнесов в секунду (без автокликов).
   F.baseCps = function () {
     var sum = 0;
-    F.BUSINESS.forEach(function (b) { sum += F.S.owned[b.id] * b.cps; });
+    F.BUSINESS.forEach(function (b) { sum += F.S.owned[b.id] * b.cps * F.milestoneMult(b); });
     return sum * F.mult();
   };
 
