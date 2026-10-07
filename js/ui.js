@@ -25,13 +25,14 @@
     var shop = $('shop');
     F.BUSINESS.forEach(function (b) {
       var row = document.createElement('div'); row.className = 'row';
+      var ico = document.createElement('div'); ico.className = 'ico'; ico.textContent = b.icon;
       var info = document.createElement('div'); info.className = 'info';
       var name = document.createElement('div'); name.className = 'name'; name.textContent = b.name;
       var desc = document.createElement('div'); desc.className = 'desc';
       var cnt = document.createElement('div'); cnt.className = 'cnt';
       var btn = document.createElement('button'); btn.className = 'buy';
       info.appendChild(name); info.appendChild(desc);
-      row.appendChild(info); row.appendChild(cnt); row.appendChild(btn);
+      row.appendChild(ico); row.appendChild(info); row.appendChild(cnt); row.appendChild(btn);
       shop.appendChild(row);
       btn.addEventListener('click', function () { F.buyBusiness(b); });
       shopEls[b.id] = { row: row, desc: desc, cnt: cnt, btn: btn };
