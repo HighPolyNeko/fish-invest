@@ -17,6 +17,7 @@
     } else {
       F.earn(F.cps() * dt);
     }
+    F.checkAch();
     F.render();
   }
 

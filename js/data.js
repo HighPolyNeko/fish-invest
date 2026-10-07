@@ -26,4 +26,38 @@
     { id: 'chat',   name: 'Закрытый чат дядей',     desc: 'Доход с клика ×3', cost: 90000,  type: 'click', val: 3 },
     { id: 'screen', name: 'Скриншот чужой выписки', desc: 'Весь доход ×2',    cost: 400000, type: 'prod',  val: 2 }
   ];
+
+  // Косметика, открываемая за достижения. Первый вариант в каждом слоте открыт с самого начала.
+  // button.light / button.dark: два цвета градиента круга с рыбой.
+  // scene.dark / scene.light: два цвета фона колонки с рыбой для соответствующей темы.
+  F.COSMETICS = {
+    fish: [
+      { id: 'fish',    name: 'Рыба',     glyph: '🐟' },
+      { id: 'puffer',  name: 'Фугу',     glyph: '🐡' },
+      { id: 'shrimp',  name: 'Креветка', glyph: '🦐' },
+      { id: 'shark',   name: 'Акула',    glyph: '🦈' },
+      { id: 'octopus', name: 'Осьминог', glyph: '🐙' },
+      { id: 'sushi',   name: 'Суши',     glyph: '🍣' },
+      { id: 'tin',     name: 'Шпроты',   glyph: '🥫' }
+    ],
+    button: [
+      { id: 'sand',  name: 'Песок' },
+      { id: 'ocean', name: 'Океан',  light: '#3b83b8', dark: '#174463' },
+      { id: 'coral', name: 'Коралл', light: '#ffb3a1', dark: '#e0604a' },
+      { id: 'mint',  name: 'Мята',   light: '#c9f5e0', dark: '#4cc79a' },
+      { id: 'night', name: 'Ночь',   light: '#4a5a78', dark: '#10182b' }
+    ],
+    scene: [
+      { id: 'sea',      name: 'Море' },
+      { id: 'sunset',   name: 'Закат',        dark: ['#7a3b4f', '#3a1f3d'], light: ['#ffd9b8', '#ffeedd'] },
+      { id: 'fryazino', name: 'Фрязино',      dark: ['#5b6470', '#2c3139'], light: ['#e1e5ea', '#f1f3f5'] },
+      { id: 'swamp',    name: 'Поле в Литве', dark: ['#46602f', '#233318'], light: ['#d6e8b8', '#ecf5da'] },
+      { id: 'deep',     name: 'Глубина',      dark: ['#10315a', '#050f22'], light: ['#b8cdee', '#dce7f8'] }
+    ]
+  };
+  F.COSMETIC_SLOTS = [
+    { key: 'fish',   label: 'Рыба' },
+    { key: 'button', label: 'Кнопка' },
+    { key: 'scene',  label: 'Фон' }
+  ];
 })();
