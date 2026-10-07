@@ -96,7 +96,7 @@
 
   function breakdownText() {
     var S = F.S, raw = 0;
-    F.BUSINESS.forEach(function (b) { raw += S.owned[b.id] * b.cps; });
+    F.BUSINESS.forEach(function (b) { raw += S.owned[b.id] * b.cps * F.milestoneMult(b); });
     var lines = [];
     lines.push('ДОХОД В СЕКУНДУ: ' + fmt(F.cps()) + ' ' + F.cur());
     lines.push('= бизнесы ' + fmt(raw) + ' × множитель ' + F.mult().toFixed(2));
@@ -121,7 +121,7 @@
     F.BUSINESS.forEach(function (b) {
       if (S.owned[b.id] > 0) {
         if (!any) { lines.push(''); lines.push('ПО БИЗНЕСАМ:'); any = true; }
-        lines.push('• ' + b.name + ' ×' + S.owned[b.id] + ': ' + fmt(S.owned[b.id] * b.cps * F.mult()) + ' ' + F.cur() + '/сек');
+        lines.push('• ' + b.name + ' ×' + S.owned[b.id] + ': ' + fmt(S.owned[b.id] * b.cps * F.milestoneMult(b) * F.mult()) + ' ' + F.cur() + '/сек' + (F.milestonesDone(b) ? ' (вехи ×' + F.milestoneMult(b) + ')' : ''));
       }
     });
     return lines.join('\n');
@@ -176,7 +176,9 @@
       var visible = b.id === F.BUSINESS[0].id || S.owned[b.id] > 0 || S.total >= b.base * 0.4;
       e.row.classList.toggle('hidden', !visible);
       if (!visible) return;
-      e.desc.textContent = b.desc + ' (' + fmt(b.cps * F.mult()) + ' ' + F.cur() + '/сек каждый)';
+      var nextM = F.nextMilestone(b);
+      e.desc.textContent = b.desc + ' (' + fmt(b.cps * F.milestoneMult(b) * F.mult()) + ' ' + F.cur() + '/сек каждый)'
+        + (nextM ? ' До вехи ×2: ещё ' + (nextM - S.owned[b.id]) + ' шт.' : '');
       e.cnt.textContent = S.owned[b.id];
       var n = F.amountFor(b);
       var c = F.costN(b, n);

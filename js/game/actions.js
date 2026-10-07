@@ -11,7 +11,12 @@
     var c = F.costN(b, n);
     if (F.S.money < c) return;
     F.S.money -= c;
+    var doneBefore = F.milestonesDone(b);
     F.S.owned[b.id] += n;
+    var reached = F.milestonesDone(b) - doneBefore;
+    if (reached > 0) {
+      F.toast('Веха! ' + b.name + ': ' + F.S.owned[b.id] + ' шт., доход этого бизнеса ×' + Math.pow(2, reached) + '.');
+    }
     F.render(); F.save();
   };
 
