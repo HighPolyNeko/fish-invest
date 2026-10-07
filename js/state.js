@@ -51,5 +51,5 @@
   F.amount = 1;                  // сколько покупаем за раз: 1, 10 или 'max' (на все деньги)
   F.buffs = {};                  // временные эффекты от событий, в сохранение не попадают
   // Служебное, в сохранение не попадает: для достижений, разгона, автокликов и премии.
-  F.runtime = { lastActivity: Date.now(), clickTimes: [], combo: 0, autoAcc: 0, lastAutoFloat: 0, bonusTimer: 0 };
+  F.runtime = { lastActivity: Date.now(), clickTimes: [], combo: 0, lastComboClick: 0, streakStart: 0, autoAcc: 0, lastAutoFloat: 0, bonusTimer: 0 };
 })();

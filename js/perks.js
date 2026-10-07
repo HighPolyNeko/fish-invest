@@ -8,7 +8,7 @@
     { id: 'auto', icon: '👆', cost: 2, name: 'Дядя «я сам нажму»',
       desc: 'Дяди сами кликают по рыбе: 0.5 клика в секунду и ещё 0.1 за каждого дядю и дядю-брокера.' },
     { id: 'combo', icon: '☕', cost: 3, name: 'Кофе без сахара',
-      desc: 'Чем чаще жмёшь на рыбу, тем быстрее работают дяди: до +50% к доходу. Разгон спадает за 10 секунд без кликов.' },
+      desc: 'Жми на рыбу без остановки пару секунд, и дяди начнут разгоняться: до +50% к доходу. Копится быстро, а после 3 секунд без кликов так же быстро спадает.' },
     { id: 'discount', icon: '🤝', cost: 3, name: 'Скидка по знакомству',
       desc: 'Весь бизнес дешевле на 10%. «Свои люди, берите, не торгуйтесь».' },
     { id: 'ichth', icon: '🎣', cost: 4, name: 'Знакомый ихтиолог',
@@ -30,14 +30,29 @@
   F.offlineEff = function () { return F.hasPerk('offshore') ? 0.75 : F.CONFIG.OFFLINE_EFF; };
   F.offlineCap = function () { return F.hasPerk('offshore') ? 24 * 3600 : F.CONFIG.OFFLINE_CAP; };
 
+  // Разгон. Параметры: пауза между кликами, после которой серия считается оборванной (мс),
+  // сколько надо кликать без остановки, чтобы разгон начался (мс), прибавка за клик, максимум,
+  // сколько ждать без кликов до спада (мс), скорость спада (очков в секунду).
+  var STREAK_GAP = 700, START_AFTER = 2000, PER_CLICK = 2, MAX_COMBO = 50, DECAY_AFTER = 3000, DECAY_RATE = 10;
+
   F.comboHit = function () {
-    if (F.hasPerk('combo')) F.runtime.combo = Math.min(50, F.runtime.combo + 1);
+    if (!F.hasPerk('combo')) return;
+    var rt = F.runtime, now = Date.now();
+    // пока разгона нет, пауза дольше STREAK_GAP обрывает серию и счёт 2 секунд начинается заново
+    if (rt.combo <= 0 && now - rt.lastComboClick > STREAK_GAP) rt.streakStart = now;
+    rt.lastComboClick = now;
+    if (rt.combo > 0 || now - rt.streakStart >= START_AFTER) {
+      rt.combo = Math.min(MAX_COMBO, rt.combo + PER_CLICK);
+    }
   };
 
   // Вызывается из игрового цикла каждый тик, dt в секундах.
   F.tickPerks = function (dt) {
     var rt = F.runtime;
-    rt.combo = Math.max(0, rt.combo - dt * 5);
+    // разгон спадает только после паузы в кликах, зато быстро
+    if (rt.combo > 0 && Date.now() - rt.lastComboClick > DECAY_AFTER) {
+      rt.combo = Math.max(0, rt.combo - dt * DECAY_RATE);
+    }
 
     var rate = F.autoRate();
     if (rate > 0) {
