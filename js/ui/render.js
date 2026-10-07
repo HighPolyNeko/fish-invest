@@ -208,16 +208,18 @@
     claim.classList.toggle('hidden', gain < 1);
     $('p-desc').textContent = (gain >= 1
       ? 'Очки копятся: можно забрать сейчас +' + gain + ' или подождать, пока их станет больше. Бизнес и улучшения при выходе сгорят.'
-      : 'Нужно заработать за этот заход минимум 1 млн ' + F.cur() + ', тогда дяди начнут доверять.')
+      : 'Нужно заработать за всё время ' + fmt(F.trustThreshold(S.prestige + 1)) + ' ' + F.cur() + ', тогда дяди дадут следующее очко. Цена очков не сбрасывается.')
       + ' Свободное доверие даёт +' + (F.trustFree() * 10) + '% к доходу (всего заработано очков: ' + S.prestige + ').';
-    // доверие = floor(sqrt(заработано за заход / 1 млн)): n-е очко открывается на n² млн €,
-    // значит каждое следующее дороже предыдущего
-    var from = gain * gain * 1e6, to = (gain + 1) * (gain + 1) * 1e6;
-    var left = to - S.total, rate = F.cps();
-    $('p-bar').style.width = Math.min(100, Math.max(0, (S.total - from) / (to - from) * 100)) + '%';
-    $('p-bar-text').textContent = 'Следующее очко (всего +' + (gain + 1) + ') через ' + fmt(left) + ' ' + F.cur() + ' · '
+    // Очков всего n = уже забрано + ждёт получения. n-е очко открывается при n³ · 1 млн заработанного за всё время,
+    // значит каждое следующее дороже предыдущего, а выход в плюс цену не сбрасывает.
+    var have = S.prestige + gain;   // очков уже заслужено
+    var from = F.trustThreshold(have), to = F.trustThreshold(have + 1);
+    var left = to - S.allTime, rate = F.cps();
+    $('p-bar').style.width = Math.min(100, Math.max(0, (S.allTime - from) / (to - from) * 100)) + '%';
+    $('p-bar-text').textContent = 'Следующее очко (всего ' + (have + 1) + ') через ' + fmt(left) + ' ' + F.cur() + ' · '
       + (rate > 0 ? 'примерно ' + F.fmtTime(left / rate) + ' при текущем доходе' : 'без дохода не накопить');
-    $('p-cost').textContent = 'Это очко стоит ещё ' + fmt(to - from) + ' ' + F.cur() + ', следующее после него дороже на 2 млн ' + F.cur() + '.';
+    $('p-cost').textContent = 'Это очко стоит ещё ' + fmt(to - from) + ' ' + F.cur() + ', следующее после него дороже на '
+      + fmt(F.trustThreshold(have + 2) - to - (to - from)) + ' ' + F.cur() + '.';
     F.renderPerks();
     var pb = $('p-btn');
     pb.disabled = gain < 1;

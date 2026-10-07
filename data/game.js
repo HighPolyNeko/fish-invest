@@ -5,6 +5,8 @@
   F.CONFIG = {
     KEY: 'rare-fish-idle-v1',
     GROWTH: 1.15,
+    TRUST_BASE: 1e6,   // цена доверия: n очков суммарно стоят TRUST_BASE · n^TRUST_EXP заработанного за всё время
+    TRUST_EXP: 3,
     OFFLINE_EFF: 0.5,
     OFFLINE_CAP: 8 * 3600
   };
