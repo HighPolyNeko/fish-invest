@@ -62,7 +62,7 @@
         var prize = F.cps() * 15;
         if (prize > 0) {
           F.earn(prize);
-          F.toast('Дядя-бухгалтер принёс премию: +' + fmt(prize) + ' €');
+          F.toast('Дядя-бухгалтер принёс премию: +' + fmt(prize) + ' ' + F.cur());
         }
       }
     }
