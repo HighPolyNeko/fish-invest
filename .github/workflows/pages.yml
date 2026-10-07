@@ -27,6 +27,16 @@ jobs:
         run: |
           mkdir _site
           cp -r index.html css js assets data _site/
+          # версия в адресах файлов (?v=<коммит>): после каждого деплоя браузер берёт свежие файлы,
+          # а не старые из кеша. Меняется только копия в _site, исходный index.html остаётся как есть.
+          VER="${GITHUB_SHA::7}"
+          sed -i -E "s#(src|href)=\"((css|js|data|assets)/[^\"]+)\"#\1=\"\2?v=${VER}\"#g" _site/index.html
+          echo "Версия файлов: ${VER}"
+          grep -c "?v=${VER}" _site/index.html
+          # ни одной ссылки без версии остаться не должно
+          if grep -E "(src|href)=\"(css|js|data|assets)/[^\"?]+\"" _site/index.html; then
+            echo "Остались адреса без версии"; exit 1
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
