@@ -113,5 +113,19 @@
 
   F.earn = function (x) { F.S.money += x; F.S.total += x; F.S.allTime += x; };
 
-  F.prestigeGain = function () { return Math.floor(Math.sqrt(F.S.total / 1e6)); };
+  // Очки доверия считаются по заработанному за ВСЁ время (S.allTime), цена очка после «Выйти в плюс» не сбрасывается.
+  // Чтобы всего иметь n очков, нужно суммарно заработать TRUST_BASE · n^TRUST_EXP.
+  F.trustThreshold = function (n) { return n <= 0 ? 0 : F.CONFIG.TRUST_BASE * Math.pow(n, F.CONFIG.TRUST_EXP); };
+
+  // Сколько очков доверия положено за всё заработанное (с поправкой на неточность корня).
+  F.trustTotalEarned = function () {
+    var x = F.S.allTime / F.CONFIG.TRUST_BASE;
+    var n = Math.floor(Math.pow(x, 1 / F.CONFIG.TRUST_EXP));
+    while (F.trustThreshold(n + 1) <= F.S.allTime) n += 1;
+    while (n > 0 && F.trustThreshold(n) > F.S.allTime) n -= 1;
+    return n;
+  };
+
+  // Сколько очков можно забрать прямо сейчас.
+  F.prestigeGain = function () { return Math.max(0, F.trustTotalEarned() - F.S.prestige); };
 })();
