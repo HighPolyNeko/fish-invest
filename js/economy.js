@@ -74,6 +74,26 @@
     return F.amount === 'max' ? Math.max(1, F.maxAffordable(b)) : F.amount;
   };
 
+  // «Что если»: применяет изменение к состоянию, считает доход и доход за клик, затем возвращает всё как было.
+  // Нужно для подсказок «как изменится доход после покупки» в информативном режиме.
+  F.whatIf = function (change) {
+    var s = F.S;
+    var keep = { owned: {}, bought: {}, perks: {}, spent: s.spent };
+    ['owned', 'bought', 'perks'].forEach(function (k) {
+      Object.keys(s[k]).forEach(function (id) { keep[k][id] = s[k][id]; });
+    });
+    var res = { c0: F.cps(), k0: F.clickPower() };
+    change(s);
+    res.c1 = F.cps();
+    res.k1 = F.clickPower();
+    ['owned', 'bought', 'perks'].forEach(function (k) {
+      Object.keys(s[k]).forEach(function (id) { delete s[k][id]; });
+      Object.keys(keep[k]).forEach(function (id) { s[k][id] = keep[k][id]; });
+    });
+    s.spent = keep.spent;
+    return res;
+  };
+
   F.earn = function (x) { F.S.money += x; F.S.total += x; F.S.allTime += x; };
 
   F.prestigeGain = function () { return Math.floor(Math.sqrt(F.S.total / 1e6)); };

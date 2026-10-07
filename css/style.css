@@ -101,6 +101,11 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
   border: 0; border-radius: 10px; padding: 9px 10px; min-width: 96px; font-size: 14px; font-weight: 600;
   background: var(--btn); color: var(--btn-text); cursor: pointer; touch-action: manipulation;
 }
+/* кнопка покупки с подписью под ней (информативный режим) */
+.buywrap { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.delta { max-width: 150px; text-align: right; font-size: 11px; line-height: 1.25; color: var(--good); white-space: pre-line; }
+.delta.neg { color: var(--bad); }
+.delta:empty { display: none; }
 .buy.two { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 10px; line-height: 1.15; }
 .buy.two .price { font-size: 15px; font-weight: 700; }
 .buy.two .act { font-size: 11px; font-weight: 500; opacity: .8; }

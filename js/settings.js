@@ -12,7 +12,7 @@
     { sym: '¥', name: 'Иена' },
     { sym: '🐟', name: 'Рыбки' }
   ];
-  var DEFAULTS = { theme: 'dark', volume: 0.5, numfmt: 'words', currency: '€', fish: 'fish', button: 'sand', scene: 'sea' };
+  var DEFAULTS = { theme: 'dark', volume: 0.5, numfmt: 'words', currency: '€', info: false, fish: 'fish', button: 'sand', scene: 'sea' };
 
   function load() {
     var s = {};
@@ -21,6 +21,7 @@
     return {
       theme: s.theme === 'light' ? 'light' : DEFAULTS.theme,
       volume: typeof s.volume === 'number' && s.volume >= 0 && s.volume <= 1 ? s.volume : DEFAULTS.volume,
+      info: s.info === true,   // информативный режим: подписи «как изменится доход»
       numfmt: s.numfmt === 'sci' ? 'sci' : DEFAULTS.numfmt,   // 'words': 6 тыс, 'sci': 6e3
       currency: F.CURRENCIES.some(function (c) { return c.sym === s.currency; }) ? s.currency : DEFAULTS.currency,
       fish: str(s.fish, DEFAULTS.fish),
