@@ -21,6 +21,38 @@
 
   var shopEls = {}, upEls = {};
 
+  // Кнопка покупки с подписью под ней: в информативном режиме там написано, как изменится доход.
+  F.buyWrap = function (btn) {
+    var wrap = document.createElement('div'); wrap.className = 'buywrap';
+    var delta = document.createElement('div'); delta.className = 'delta';
+    wrap.appendChild(btn); wrap.appendChild(delta);
+    return { wrap: wrap, delta: delta };
+  };
+
+  function signed(n) { return (n < 0 ? '−' : '+') + fmt(Math.abs(n)); }
+
+  // Подпись про доход: число и проценты. Если дохода ещё не было, процент считать не от чего.
+  function incomeText(w) {
+    var d = w.c1 - w.c0;
+    if (Math.abs(d) < 1e-9) return '';
+    var pct = w.c0 > 0 ? ' (' + (d < 0 ? '−' : '+') + Math.abs(d / w.c0 * 100).toFixed(1) + '%)' : ' (доход появится)';
+    return signed(d) + ' ' + F.cur() + '/сек' + pct;
+  }
+  function clickText(w) {
+    var d = w.k1 - w.k0;
+    if (Math.abs(d) < 1e-9 || w.k0 <= 0) return '';
+    return signed(d) + ' ' + F.cur() + ' за клик (' + (d < 0 ? '−' : '+') + Math.abs(d / w.k0 * 100).toFixed(1) + '%)';
+  }
+
+  // Показывает подпись под кнопкой, если включён информативный режим.
+  F.setDelta = function (el, change, kind) {
+    if (!F.settings.info) { el.textContent = ''; return; }
+    var w = F.whatIf(change);
+    var income = incomeText(w), click = kind === 'click' ? clickText(w) : '';
+    el.textContent = [click, income].filter(Boolean).join('\n');
+    el.classList.toggle('neg', (w.c1 - w.c0) < -1e-9);
+  };
+
   F.buildShop = function () {
     var shop = $('shop');
     F.BUSINESS.forEach(function (b) {
@@ -37,10 +69,11 @@
       var act = document.createElement('span'); act.className = 'act';
       btn.appendChild(price); btn.appendChild(act);
       info.appendChild(name); info.appendChild(desc);
-      row.appendChild(ico); row.appendChild(info); row.appendChild(btn);
+      var bw = F.buyWrap(btn);
+      row.appendChild(ico); row.appendChild(info); row.appendChild(bw.wrap);
       shop.appendChild(row);
       btn.addEventListener('click', function () { F.buyBusiness(b); });
-      shopEls[b.id] = { row: row, desc: desc, cnt: cnt, btn: btn, price: price, act: act };
+      shopEls[b.id] = { row: row, desc: desc, cnt: cnt, btn: btn, price: price, act: act, delta: bw.delta };
     });
   };
 
@@ -53,10 +86,11 @@
       var desc = document.createElement('div'); desc.className = 'desc'; desc.textContent = u.desc;
       var btn = document.createElement('button'); btn.className = 'buy';
       info.appendChild(name); info.appendChild(desc);
-      row.appendChild(info); row.appendChild(btn);
+      var bw = F.buyWrap(btn);
+      row.appendChild(info); row.appendChild(bw.wrap);
       ups.appendChild(row);
       btn.addEventListener('click', function () { F.buyUpgrade(u); });
-      upEls[u.id] = { row: row, btn: btn };
+      upEls[u.id] = { row: row, btn: btn, delta: bw.delta };
     });
   };
 
@@ -149,6 +183,7 @@
       e.price.textContent = fmt(c) + ' ' + F.cur();
       e.act.textContent = 'Купить ×' + n;
       e.btn.disabled = S.money < c;
+      F.setDelta(e.delta, function (s) { s.owned[b.id] += n; });
     });
 
     var anyUp = false;
@@ -160,6 +195,7 @@
       anyUp = true;
       e.btn.textContent = fmt(u.cost) + ' ' + F.cur();
       e.btn.disabled = S.money < u.cost;
+      F.setDelta(e.delta, function (s) { s.bought[u.id] = true; }, 'click');
     });
     $('ups-wrap').classList.toggle('hidden', !anyUp);
 

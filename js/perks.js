@@ -96,10 +96,11 @@
       var desc = document.createElement('div'); desc.className = 'desc'; desc.textContent = p.desc;
       var btn = document.createElement('button'); btn.className = 'buy';
       info.appendChild(name); info.appendChild(desc);
-      row.appendChild(ico); row.appendChild(info); row.appendChild(btn);
+      var bw = F.buyWrap(btn);
+      row.appendChild(ico); row.appendChild(info); row.appendChild(bw.wrap);
       box.appendChild(row);
       F.armed(btn, 'Точно? −' + p.cost + ' доверия', function () { buyPerk(p); });
-      els[p.id] = { row: row, btn: btn };
+      els[p.id] = { row: row, btn: btn, delta: bw.delta };
     });
   };
 
@@ -120,6 +121,13 @@
       var e = els[p.id], have = F.hasPerk(p.id);
       e.row.classList.toggle('owned', have);
       e.btn.disabled = have || free < p.cost;
+      // чистый эффект на доход: знакомый плюс потеря +10% за каждое потраченное очко доверия
+      if (have) e.delta.textContent = '';
+      else {
+        F.setDelta(e.delta, function (s) { s.perks[p.id] = true; s.spent += p.cost; });
+        // у знакомых без прямого дохода показан только минус от потраченного доверия, саму выгоду подпись не считает
+        if (p.id !== 'auto' && e.delta.textContent) e.delta.textContent += '\nиз-за потраченного доверия';
+      }
       if (e.btn.dataset.armed) return;   // пока ждём подтверждения, текст кнопки не трогаем
       e.btn.textContent = have ? 'Есть' : p.cost + ' доверия';
     });

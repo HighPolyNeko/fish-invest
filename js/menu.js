@@ -8,6 +8,11 @@
       b.classList.toggle('on', b.dataset.theme === F.settings.theme);
     });
   }
+  function syncInfo() {
+    document.querySelectorAll('#infomode button').forEach(function (b) {
+      b.classList.toggle('on', (b.dataset.info === '1') === F.settings.info);
+    });
+  }
   function syncNumFmt() {
     document.querySelectorAll('#numfmts button').forEach(function (b) {
       b.classList.toggle('on', b.dataset.fmt === F.settings.numfmt);
@@ -62,7 +67,7 @@
   F.refreshMenus = function () { if (dlg.open) syncCosmetics(); };
 
   $('settings-btn').addEventListener('click', function () {
-    syncTheme(); syncNumFmt(); syncCurrency(); syncVolume(); syncCosmetics();
+    syncTheme(); syncInfo(); syncNumFmt(); syncCurrency(); syncVolume(); syncCosmetics();
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
   });
   $('settings-close').addEventListener('click', function () { dlg.close(); });
@@ -84,6 +89,14 @@
       F.settings.numfmt = b.dataset.fmt;
       F.saveSettings(); syncNumFmt();
       F.render();   // сразу перерисовать все числа
+    });
+  });
+
+  document.querySelectorAll('#infomode button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      F.settings.info = b.dataset.info === '1';
+      F.saveSettings(); syncInfo();
+      F.render();
     });
   });
 
