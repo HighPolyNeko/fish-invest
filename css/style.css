@@ -9,6 +9,20 @@ body {
   user-select: none; -webkit-user-select: none;
 }
 
+/* ---------- новостная строка сверху ---------- */
+#news {
+  position: sticky; top: 0; z-index: 6; height: 34px; overflow: hidden;
+  background: var(--card); border-bottom: 1px solid var(--border);
+  font-size: 14px; color: var(--text);
+}
+#news-track { position: absolute; top: 0; left: 0; height: 100%; display: flex; align-items: center; white-space: nowrap; }
+#news-track.run { animation: news-scroll linear forwards; }
+#news-text::before { content: "📰 "; }
+@keyframes news-scroll { from { transform: translateX(var(--from)); } to { transform: translateX(var(--to)); } }
+@media (prefers-reduced-motion: reduce) {
+  #news-track.run { animation-duration: 40s !important; }
+}
+
 /* ---------- раскладка: телефон (одна колонка) ---------- */
 #app { max-width: 560px; margin: 0 auto; padding: 12px 12px 40px; display: flex; flex-direction: column; }
 .col { display: contents; }
@@ -173,6 +187,7 @@ details#why summary { cursor: pointer; font-size: 14px; font-weight: 600; }
   #money { font-size: 44px; }
   #cps { font-size: 15px; }
   body { background: var(--bg); }
+  body.has-news #app { height: calc(100vh - 34px); }
   #stage { flex: 1; min-height: 320px; height: auto; margin: 10px 0; }
   #toast { min-height: 44px; }
   #head, #buffs, #stage, #toast, #why, #amounts, #shopwrap, #ups-wrap, #prest, #perks-wrap, #foot { order: 0; }
