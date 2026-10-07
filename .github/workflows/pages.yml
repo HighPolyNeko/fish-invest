@@ -1,6 +1,6 @@
 name: Pages
 
-# Публикация main на GitHub Pages. idle.html отдаётся как главная страница.
+# Публикация main на GitHub Pages: index.html, css/, js/, assets/.
 on:
   push:
     branches: [main]
@@ -26,7 +26,7 @@ jobs:
       - name: Собрать сайт
         run: |
           mkdir _site
-          cp idle.html _site/index.html
+          cp -r index.html css js assets _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

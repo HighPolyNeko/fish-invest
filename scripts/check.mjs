@@ -1,22 +1,29 @@
-// Проверка сборки: файл игры существует, inline-скрипты без синтаксических ошибок.
-import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+// Проверка сборки: index.html на месте, все локальные скрипты и стили существуют,
+// в JS нет синтаксических ошибок.
+import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
-const FILE = 'idle.html';
-const html = readFileSync(FILE, 'utf8');
-const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]);
+const html = readFileSync('index.html', 'utf8');
+const local = (url) => !/^(https?:)?\/\//.test(url) && !url.startsWith('data:');
+
+const scripts = [...html.matchAll(/<script[^>]*\bsrc="([^"]+)"/gi)].map((m) => m[1]).filter(local);
+const assets = [...html.matchAll(/<link[^>]*\bhref="([^"]+)"/gi)].map((m) => m[1]).filter(local);
 
 if (scripts.length === 0) {
-  console.error(`В ${FILE} нет inline-скриптов`);
+  console.error('В index.html нет локальных скриптов');
   process.exit(1);
 }
 
-const dir = mkdtempSync(join(tmpdir(), 'check-'));
-scripts.forEach((code, i) => {
-  const path = join(dir, `script${i}.js`);
-  writeFileSync(path, code);
+let failed = false;
+for (const path of [...scripts, ...assets]) {
+  if (!existsSync(path)) {
+    console.error(`Файл из index.html не найден: ${path}`);
+    failed = true;
+  }
+}
+if (failed) process.exit(1);
+
+for (const path of scripts) {
   execFileSync(process.execPath, ['--check', path], { stdio: 'inherit' });
-});
-console.log(`OK: ${scripts.length} скрипт(ов) в ${FILE} без синтаксических ошибок`);
+}
+console.log(`OK: ${scripts.length} скрипт(ов), ${assets.length} файл(ов) стилей/иконок, синтаксис в порядке`);
