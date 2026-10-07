@@ -100,11 +100,7 @@
       if (F.buffs[k].until <= now) { delete F.buffs[k]; return; }
       list.push(F.buffs[k]);
     });
-    // разгон от знакомого «Кофе без сахара»: плашка без таймера
-    if (F.hasPerk('combo') && F.runtime.combo >= 1) {
-      list.push({ label: 'Разгон дядей: ×' + F.comboMult().toFixed(2), mult: 1, until: Infinity, noTime: true });
-    }
-    var key = list.map(function (b) { return b.label + (b.noTime ? '' : Math.ceil((b.until - now) / 1000)); }).join('|');
+    var key = list.map(function (b) { return b.label + Math.ceil((b.until - now) / 1000); }).join('|');
     if (key === buffsKey) return;
     buffsKey = key;
     var box = $('buffs');
@@ -112,9 +108,25 @@
     list.forEach(function (b) {
       var chip = document.createElement('span');
       chip.className = 'buff' + (b.mult < 1 ? ' bad' : '');
-      chip.textContent = b.noTime ? b.label : b.label + ' · ' + Math.ceil((b.until - now) / 1000) + ' с';
+      chip.textContent = b.label + ' · ' + Math.ceil((b.until - now) / 1000) + ' с';
       box.appendChild(chip);
     });
+  }
+
+  // Индикатор разгона: всегда на одном месте, при нуле пишет 0, а пока идёт разгон, мигает.
+  var comboShown = '';
+  function renderCombo() {
+    var box = $('combo');
+    var has = F.hasPerk('combo');
+    box.classList.toggle('hidden', !has);
+    if (!has) return;
+    var v = Math.round(F.runtime.combo);
+    var text = String(v) + '|' + Math.round(F.comboMult() * 100);
+    if (text === comboShown) return;
+    comboShown = text;
+    $('combo-val').textContent = v + ' / 50 · ×' + F.comboMult().toFixed(2);
+    $('combo-bar').style.width = (F.runtime.combo / 50 * 100) + '%';
+    box.classList.toggle('blink', v > 0);
   }
 
   F.render = function () {
@@ -123,6 +135,7 @@
     $('money').textContent = fmt(S.money) + ' ' + F.cur();
     $('cps').textContent = fmt(F.cps()) + ' ' + F.cur() + ' в секунду · ' + fmt(F.clickPower()) + ' ' + F.cur() + ' за клик';
     renderBuffs();
+    renderCombo();
 
     F.BUSINESS.forEach(function (b) {
       var e = shopEls[b.id];
