@@ -1,6 +1,7 @@
 name: Promote main
 
-# main догоняет коммит релиза (только fast-forward) и получает тег с номером релиза.
+# main догоняет коммит релиза (только fast-forward), получает тег с номером релиза,
+# после чего релизная ветка удаляется.
 # Автоматически: когда в develop смержен back-merge PR из release/**.
 # Вручную: workflow_dispatch с именем релизной ветки.
 #
@@ -14,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       release_branch:
-        description: 'Релизная ветка, например release/1.4.2'
+        description: 'Релиз: 0.2.0 или release/0.2.0 (ветка будет удалена после выкатки)'
         required: true
 
 permissions:
@@ -42,18 +43,18 @@ jobs:
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           if [ "$EVENT" = "workflow_dispatch" ]; then
-            case "$MANUAL_BRANCH" in
-              release/*) ;;
-              *) echo "Нужна ветка вида release/X.Y.Z"; exit 1 ;;
-            esac
-            TARGET="origin/$MANUAL_BRANCH"
+            # можно ввести и 0.2.0, и release/0.2.0
+            RELEASE_BRANCH="release/${MANUAL_BRANCH#release/}"
+            if [ "$RELEASE_BRANCH" = "release/" ]; then echo "Укажи релиз, например 0.2.0"; exit 1; fi
+            git rev-parse -q --verify "origin/$RELEASE_BRANCH" >/dev/null \
+              || { echo "Ветки $RELEASE_BRANCH нет в репозитории"; exit 1; }
+            TARGET="origin/$RELEASE_BRANCH"
           else
             # ветку могли удалить при мерже, поэтому берём коммит, а не имя
             echo "Back-merge из $PR_HEAD_REF"
             RELEASE_BRANCH="$PR_HEAD_REF"
             TARGET="$PR_HEAD_SHA"
           fi
-          RELEASE_BRANCH="${RELEASE_BRANCH:-$MANUAL_BRANCH}"
           TAG="${RELEASE_BRANCH#release/}"
           SHA=$(git rev-parse "$TARGET^{commit}")
 
@@ -62,12 +63,20 @@ jobs:
 
           # тег = имя релизной ветки без release/ (release/0.0.1-test -> 0.0.1-test)
           if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            if [ "$(git rev-parse "refs/tags/$TAG^{commit}")" = "$SHA" ]; then
-              echo "Тег $TAG уже стоит на этом коммите"
-              exit 0
+            if [ "$(git rev-parse "refs/tags/$TAG^{commit}")" != "$SHA" ]; then
+              echo "Тег $TAG уже существует на другом коммите"
+              exit 1
             fi
-            echo "Тег $TAG уже существует на другом коммите"
-            exit 1
+            echo "Тег $TAG уже стоит на этом коммите"
+          else
+            git tag "$TAG" "$SHA"
+            git push origin "refs/tags/$TAG"
           fi
-          git tag "$TAG" "$SHA"
-          git push origin "refs/tags/$TAG"
+
+          # релиз выкачен и помечен тегом, ветка больше не нужна
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null; then
+            git push origin --delete "$RELEASE_BRANCH" \
+              || echo "::warning::Не удалось удалить ветку $RELEASE_BRANCH, удали её вручную"
+          else
+            echo "Ветка $RELEASE_BRANCH уже удалена"
+          fi
