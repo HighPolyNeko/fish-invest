@@ -1,6 +1,6 @@
 name: Promote main
 
-# main догоняет коммит релиза (только fast-forward).
+# main догоняет коммит релиза (только fast-forward) и получает тег с номером релиза.
 # Автоматически: когда в develop смержен back-merge PR из release/**.
 # Вручную: workflow_dispatch с именем релизной ветки.
 #
@@ -50,7 +50,24 @@ jobs:
           else
             # ветку могли удалить при мерже, поэтому берём коммит, а не имя
             echo "Back-merge из $PR_HEAD_REF"
+            RELEASE_BRANCH="$PR_HEAD_REF"
             TARGET="$PR_HEAD_SHA"
           fi
+          RELEASE_BRANCH="${RELEASE_BRANCH:-$MANUAL_BRANCH}"
+          TAG="${RELEASE_BRANCH#release/}"
+          SHA=$(git rev-parse "$TARGET^{commit}")
+
           git merge --ff-only "$TARGET"
           git push origin main
+
+          # тег = имя релизной ветки без release/ (release/0.0.1-test -> 0.0.1-test)
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            if [ "$(git rev-parse "refs/tags/$TAG^{commit}")" = "$SHA" ]; then
+              echo "Тег $TAG уже стоит на этом коммите"
+              exit 0
+            fi
+            echo "Тег $TAG уже существует на другом коммите"
+            exit 1
+          fi
+          git tag "$TAG" "$SHA"
+          git push origin "refs/tags/$TAG"
