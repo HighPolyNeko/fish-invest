@@ -31,7 +31,7 @@
   F.prestigeMult = function () { return 1 + 0.1 * F.S.prestige; };
 
   F.mult = function () {
-    return (1 + 0.01 * F.uncles()) * F.prestigeMult() * F.prodUpMult() * F.buffMult('prod');
+    return (1 + 0.01 * F.uncles()) * F.prestigeMult() * F.prodUpMult() * F.buffMult('prod') * F.achMult('prod');
   };
 
   F.cps = function () {
@@ -41,7 +41,7 @@
   };
 
   F.clickPower = function () {
-    return (F.clickUpMult() * F.prestigeMult() + F.cps() * 0.02) * F.buffMult('click');
+    return (F.clickUpMult() * F.prestigeMult() + F.cps() * 0.02) * F.buffMult('click') * F.achMult('click');
   };
 
   F.costN = function (b, n) {

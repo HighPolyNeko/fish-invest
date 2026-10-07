@@ -25,17 +25,22 @@
     var shop = $('shop');
     F.BUSINESS.forEach(function (b) {
       var row = document.createElement('div'); row.className = 'row';
-      var ico = document.createElement('div'); ico.className = 'ico'; ico.textContent = b.icon;
+      var ico = document.createElement('div'); ico.className = 'ico';
+      var glyph = document.createElement('span'); glyph.textContent = b.icon;
+      var cnt = document.createElement('div'); cnt.className = 'cnt';   // сколько уже куплено, значок на иконке
+      ico.appendChild(glyph); ico.appendChild(cnt);
       var info = document.createElement('div'); info.className = 'info';
       var name = document.createElement('div'); name.className = 'name'; name.textContent = b.name;
       var desc = document.createElement('div'); desc.className = 'desc';
-      var cnt = document.createElement('div'); cnt.className = 'cnt';
-      var btn = document.createElement('button'); btn.className = 'buy';
+      var btn = document.createElement('button'); btn.className = 'buy two';
+      var price = document.createElement('span'); price.className = 'price';
+      var act = document.createElement('span'); act.className = 'act';
+      btn.appendChild(price); btn.appendChild(act);
       info.appendChild(name); info.appendChild(desc);
-      row.appendChild(ico); row.appendChild(info); row.appendChild(cnt); row.appendChild(btn);
+      row.appendChild(ico); row.appendChild(info); row.appendChild(btn);
       shop.appendChild(row);
       btn.addEventListener('click', function () { F.buyBusiness(b); });
-      shopEls[b.id] = { row: row, desc: desc, cnt: cnt, btn: btn };
+      shopEls[b.id] = { row: row, desc: desc, cnt: cnt, btn: btn, price: price, act: act };
     });
   };
 
@@ -62,16 +67,18 @@
     lines.push('ДОХОД В СЕКУНДУ: ' + fmt(F.cps()) + ' €');
     lines.push('= бизнесы ' + fmt(raw) + ' × множитель ' + F.mult().toFixed(2));
     lines.push('');
-    lines.push('МНОЖИТЕЛЬ = (1 + дяди) × (1 + доверие) × улучшения × события');
+    lines.push('МНОЖИТЕЛЬ = (1 + дяди) × (1 + доверие) × улучшения × события × достижения');
     lines.push('• дяди: +' + F.uncles() + '% (дядей и брокеров: ' + F.uncles() + ', каждый даёт +1% ко всему)');
     lines.push('• доверие дядей: +' + (S.prestige * 10) + '% (за выходы в плюс, по +10% за единицу)');
     lines.push('• улучшения на доход: ×' + fmt(F.prodUpMult()));
     lines.push('• временные события: ×' + F.buffMult('prod').toFixed(2));
+    lines.push('• достижения: ×' + F.achMult('prod').toFixed(2));
     lines.push('');
     lines.push('ДОХОД ЗА КЛИК: ' + fmt(F.clickPower()) + ' €');
     lines.push('= ' + fmt(F.clickUpMult() * F.prestigeMult()) + ' (клик × улучшения клика × доверие)');
     lines.push('+ ' + fmt(F.cps() * 0.02) + ' (2% от дохода в секунду, поэтому цифра за клик растёт вместе с бизнесом)');
     lines.push('× ' + F.buffMult('click').toFixed(2) + ' (временные события)');
+    lines.push('× ' + F.achMult('click').toFixed(2) + ' (достижения)');
     var any = false;
     F.BUSINESS.forEach(function (b) {
       if (S.owned[b.id] > 0) {
@@ -117,7 +124,8 @@
       e.desc.textContent = b.desc + ' (' + fmt(b.cps * F.mult()) + ' €/сек каждый)';
       e.cnt.textContent = S.owned[b.id];
       var c = F.costN(b, F.amount);
-      e.btn.textContent = '×' + F.amount + ': ' + fmt(c) + ' €';
+      e.price.textContent = fmt(c) + ' €';
+      e.act.textContent = 'Купить ×' + F.amount;
       e.btn.disabled = S.money < c;
     });
 

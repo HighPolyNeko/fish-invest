@@ -30,6 +30,7 @@ header { text-align: center; }
 #stage {
   position: relative; height: 230px; margin: 6px 0; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
+  border-radius: 18px; background: radial-gradient(circle at 50% 50%, var(--sea-light) 0%, transparent 72%);
 }
 #fish {
   flex: none; width: var(--fish); height: var(--fish); border: 0; border-radius: 50%; padding: 0;
@@ -68,15 +69,26 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
   display: flex; align-items: center; gap: 10px; background: var(--card);
   border-radius: 12px; padding: 10px 12px; margin-bottom: 6px;
 }
-.row .ico { flex: none; width: 36px; font-size: 28px; line-height: 1; text-align: center; }
+.row .ico { position: relative; flex: none; width: 44px; height: 44px; font-size: 30px; line-height: 44px; text-align: center; }
+/* сколько куплено: значок в углу иконки */
+.row .ico .cnt {
+  position: absolute; right: -6px; bottom: -4px; min-width: 22px; height: 20px; padding: 0 6px;
+  border-radius: 999px; background: var(--btn); color: var(--btn-text);
+  font-size: 12px; font-weight: 700; line-height: 20px; box-shadow: 0 0 0 2px var(--card);
+}
 .row .info { flex: 1; min-width: 0; }
 .row .name { font-weight: 600; }
 .row .desc { color: var(--hint); font-size: 12px; }
-.row .cnt { font-size: 22px; font-weight: 700; min-width: 34px; text-align: center; }
+.row.ach .ico { font-size: 24px; }
+.row.locked { opacity: .6; }
+.row .reward { margin-top: 2px; }
 .buy {
   border: 0; border-radius: 10px; padding: 9px 10px; min-width: 96px; font-size: 14px; font-weight: 600;
   background: var(--btn); color: var(--btn-text); cursor: pointer; touch-action: manipulation;
 }
+.buy.two { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 10px; line-height: 1.15; }
+.buy.two .price { font-size: 15px; font-weight: 700; }
+.buy.two .act { font-size: 11px; font-weight: 500; opacity: .8; }
 .buy[disabled] { opacity: .35; cursor: default; }
 .chip {
   display: inline-block; min-width: 24px; padding: 1px 8px; margin-left: 4px; border-radius: 999px;
@@ -84,19 +96,27 @@ h2 { font-size: 15px; margin: 14px 0 6px; color: var(--hint); font-weight: 600; 
 }
 .bar { height: 8px; margin: 8px 0 4px; border-radius: 999px; background: var(--track); overflow: hidden; }
 .bar-fill { height: 100%; width: 0; border-radius: 999px; background: var(--good); transition: width .3s; }
-#head { position: relative; padding: 0 42px; }   /* место под кнопку настроек */
-#settings-btn {
-  position: absolute; top: 0; right: 0; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
+#tools { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 6px; }
+#tools button {
+  width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
   background: var(--card); font-size: 18px; line-height: 1; cursor: pointer;
 }
-dialog#settings {
-  width: min(92vw, 360px); padding: 18px; border: 0; border-radius: 14px; overflow-x: hidden;
+dialog {
+  width: min(92vw, 380px); max-height: 86vh; padding: 18px; border: 0; border-radius: 14px;
+  overflow-x: hidden; overflow-y: auto;
   background: var(--panel-right); color: var(--text); box-shadow: 0 10px 40px var(--shadow);
 }
-dialog#settings::backdrop { background: var(--backdrop); }
-dialog#settings h2 { margin: 0 0 8px; }
-dialog#settings .buy { width: 100%; margin-top: 16px; }
+dialog::backdrop { background: var(--backdrop); }
+dialog h2 { margin: 0 0 8px; }
+dialog .buy { width: 100%; margin-top: 16px; }
 .set-label { margin: 12px 0 6px; font-size: 14px; color: var(--hint); }
+.set-note { margin-top: 12px; font-size: 12px; color: var(--hint); }
+.opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.opts button {
+  padding: 7px 10px; border: 0; border-radius: 8px; background: var(--card); color: var(--text);
+  font-size: 14px; cursor: pointer;
+}
+.opts button.on { background: var(--btn); color: var(--btn-text); }
 input[type="range"] { display: block; width: 100%; margin: 0; accent-color: var(--btn); }
 .note { color: var(--hint); font-size: 12px; margin-top: 18px; }
 .link { background: none; border: 0; color: var(--hint); text-decoration: underline; font-size: 12px; padding: 6px 0; cursor: pointer; }
@@ -123,7 +143,7 @@ details#why summary { cursor: pointer; font-size: 14px; font-weight: 600; }
   #title { display: block; margin: 0 0 6px; font-size: 22px; font-weight: 700; }
   #money { font-size: 44px; }
   #cps { font-size: 15px; }
-  #stage { flex: 1; min-height: 320px; height: auto; margin: 10px 0; }
+  #stage { flex: 1; min-height: 320px; height: auto; margin: 10px 0; background: none; }
   #toast { min-height: 44px; }
   #head, #buffs, #stage, #toast, #why, #amounts, #shopwrap, #ups-wrap, #prest, #foot { order: 0; }
   #ups-wrap { order: 1; } #amounts { order: 2; } #shopwrap { order: 3; }

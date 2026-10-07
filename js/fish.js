@@ -36,7 +36,7 @@
     if (!size) return;
     var px = Math.round(size * (window.devicePixelRatio || 1));
     try {
-      var b = inkBox('🐟', px, px * 0.56);
+      var b = inkBox(F.fishGlyph ? F.fishGlyph() : '🐟', px, px * 0.56);
       cv.width = cv.height = px;
       cv.style.width = cv.style.height = size + 'px';
       cv.getContext('2d').drawImage(b.canvas, b.x, b.y, b.w, b.h,
