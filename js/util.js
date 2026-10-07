@@ -13,6 +13,20 @@
     try { if (F.tg && F.tg.HapticFeedback) F.tg.HapticFeedback.impactOccurred(kind || 'light'); } catch (e) {}
   };
 
+  // секунды в короткую запись: «45 с», «12 мин», «3 ч 20 мин», «2 д 5 ч»
+  F.fmtTime = function (sec) {
+    if (!isFinite(sec)) return 'очень долго';
+    sec = Math.max(0, Math.ceil(sec));
+    if (sec < 60) return sec + ' с';
+    var min = Math.floor(sec / 60);
+    if (min < 60) return min + ' мин';
+    var h = Math.floor(min / 60);
+    if (h < 24) return h + ' ч' + (min % 60 ? ' ' + (min % 60) + ' мин' : '');
+    var d = Math.floor(h / 24);
+    if (d > 999) return 'очень долго';
+    return d + ' д' + (h % 24 ? ' ' + (h % 24) + ' ч' : '');
+  };
+
   var UNITS = ['', ' тыс', ' млн', ' млрд', ' трлн', ' квдр', ' квнт', ' скст'];
   F.fmt = function (n) {
     if (!isFinite(n)) return '∞';

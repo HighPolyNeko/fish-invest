@@ -143,14 +143,21 @@
 
     var gain = F.prestigeGain();
     $('p-count').textContent = S.prestige;
+    var claim = $('p-claim');
+    claim.textContent = '+' + gain + ' к получению';
+    claim.classList.toggle('hidden', gain < 1);
     $('p-desc').textContent = (gain >= 1
-      ? 'Начать заново и получить ещё +' + gain + ' доверия. Бизнес и улучшения сгорят.'
+      ? 'Очки копятся: можно забрать сейчас +' + gain + ' или подождать, пока их станет больше. Бизнес и улучшения при выходе сгорят.'
       : 'Нужно заработать за этот заход минимум 1 млн €, тогда дяди начнут доверять.')
       + ' Сейчас +' + (S.prestige * 10) + '% к доходу.';
-    // шкала до следующего очка доверия: доверие = floor(sqrt(заработано / 1 млн))
+    // доверие = floor(sqrt(заработано за заход / 1 млн)): n-е очко открывается на n² млн €,
+    // значит каждое следующее дороже предыдущего
     var from = gain * gain * 1e6, to = (gain + 1) * (gain + 1) * 1e6;
+    var left = to - S.total, rate = F.cps();
     $('p-bar').style.width = Math.min(100, Math.max(0, (S.total - from) / (to - from) * 100)) + '%';
-    $('p-bar-text').textContent = 'До +' + (gain + 1) + ': ' + fmt(S.total) + ' / ' + fmt(to) + ' € за этот заход';
+    $('p-bar-text').textContent = 'Следующее очко (всего +' + (gain + 1) + ') через ' + fmt(left) + ' € · '
+      + (rate > 0 ? 'примерно ' + F.fmtTime(left / rate) + ' при текущем доходе' : 'без дохода не накопить');
+    $('p-cost').textContent = 'Это очко стоит ещё ' + fmt(to - from) + ' €, следующее после него дороже на 2 млн €.';
     var pb = $('p-btn');
     pb.disabled = gain < 1;
     if (!pb.dataset.armed) pb.textContent = gain >= 1 ? 'Выйти в плюс' : 'Пока нельзя';
