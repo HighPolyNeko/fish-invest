@@ -28,25 +28,34 @@
     return m;
   };
 
-  F.prestigeMult = function () { return 1 + 0.1 * F.S.prestige; };
+  // Очки доверия, которые не потрачены на знакомых: каждое даёт +10% ко всему.
+  F.trustFree = function () { return Math.max(0, F.S.prestige - F.S.spent); };
+
+  F.prestigeMult = function () { return 1 + 0.1 * F.trustFree(); };
 
   F.mult = function () {
-    return (1 + 0.01 * F.uncles()) * F.prestigeMult() * F.prodUpMult() * F.buffMult('prod') * F.achMult('prod');
+    return (1 + 0.01 * F.uncles()) * F.prestigeMult() * F.prodUpMult() * F.buffMult('prod') *
+      F.achMult('prod') * F.comboMult();
   };
 
-  F.cps = function () {
+  // Доход от бизнесов в секунду (без автокликов).
+  F.baseCps = function () {
     var sum = 0;
     F.BUSINESS.forEach(function (b) { sum += F.S.owned[b.id] * b.cps; });
     return sum * F.mult();
   };
 
+  // Полный доход в секунду: бизнесы плюс автоклики дядей (если куплен знакомый).
+  F.cps = function () { return F.baseCps() + F.autoCps(); };
+
   F.clickPower = function () {
-    return (F.clickUpMult() * F.prestigeMult() + F.cps() * 0.02) * F.buffMult('click') * F.achMult('click');
+    return (F.clickUpMult() * F.prestigeMult() + F.baseCps() * 0.02) * F.buffMult('click') * F.achMult('click');
   };
 
   F.costN = function (b, n) {
     var g = F.CONFIG.GROWTH;
-    return Math.ceil(b.base * Math.pow(g, F.S.owned[b.id]) * (Math.pow(g, n) - 1) / (g - 1));
+    var discount = F.hasPerk('discount') ? 0.9 : 1;
+    return Math.ceil(b.base * Math.pow(g, F.S.owned[b.id]) * (Math.pow(g, n) - 1) / (g - 1) * discount);
   };
 
   F.earn = function (x) { F.S.money += x; F.S.total += x; F.S.allTime += x; };

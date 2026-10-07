@@ -3,7 +3,6 @@
   var F = window.Fish, $ = F.$, fmt = F.fmt;
 
   var EVENT_ICON = '🐠';
-  var GOOD_CHANCE = 0.7;
 
   var GOOD_EVENTS = [
     function () {
@@ -58,7 +57,7 @@
     }
     el.addEventListener('click', function (ev) {
       ev.stopPropagation();
-      var good = Math.random() < GOOD_CHANCE;
+      var good = Math.random() < F.goodChance();
       F.S.stats.events += 1;
       F.S.stats[good ? 'good' : 'bad'] += 1;
       F.toast(F.pick(good ? GOOD_EVENTS : BAD_EVENTS)());
@@ -69,6 +68,7 @@
   }
 
   F.scheduleEvent = function () {
-    setTimeout(function () { spawnEvent(); F.scheduleEvent(); }, 45000 + Math.random() * 45000);
+    var delay = (45000 + Math.random() * 45000) * F.eventDelayMult();
+    setTimeout(function () { spawnEvent(); F.scheduleEvent(); }, delay);
   };
 })();

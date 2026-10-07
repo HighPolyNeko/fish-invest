@@ -66,17 +66,21 @@
     var lines = [];
     lines.push('ДОХОД В СЕКУНДУ: ' + fmt(F.cps()) + ' €');
     lines.push('= бизнесы ' + fmt(raw) + ' × множитель ' + F.mult().toFixed(2));
+    if (F.autoRate() > 0) {
+      lines.push('+ автоклики дядей ' + fmt(F.autoCps()) + ' (' + F.autoRate().toFixed(2) + ' клика в секунду)');
+    }
     lines.push('');
-    lines.push('МНОЖИТЕЛЬ = (1 + дяди) × (1 + доверие) × улучшения × события × достижения');
+    lines.push('МНОЖИТЕЛЬ = (1 + дяди) × (1 + доверие) × улучшения × события × достижения × разгон');
     lines.push('• дяди: +' + F.uncles() + '% (дядей и брокеров: ' + F.uncles() + ', каждый даёт +1% ко всему)');
-    lines.push('• доверие дядей: +' + (S.prestige * 10) + '% (за выходы в плюс, по +10% за единицу)');
+    lines.push('• доверие дядей: +' + (F.trustFree() * 10) + '% (свободных очков: ' + F.trustFree() + ', по +10% за очко)');
+    if (F.hasPerk('combo')) lines.push('• разгон от кликов: ×' + F.comboMult().toFixed(2));
     lines.push('• улучшения на доход: ×' + fmt(F.prodUpMult()));
     lines.push('• временные события: ×' + F.buffMult('prod').toFixed(2));
     lines.push('• достижения: ×' + F.achMult('prod').toFixed(2));
     lines.push('');
     lines.push('ДОХОД ЗА КЛИК: ' + fmt(F.clickPower()) + ' €');
     lines.push('= ' + fmt(F.clickUpMult() * F.prestigeMult()) + ' (клик × улучшения клика × доверие)');
-    lines.push('+ ' + fmt(F.cps() * 0.02) + ' (2% от дохода в секунду, поэтому цифра за клик растёт вместе с бизнесом)');
+    lines.push('+ ' + fmt(F.baseCps() * 0.02) + ' (2% от дохода бизнесов в секунду, поэтому цифра за клик растёт вместе с бизнесом)');
     lines.push('× ' + F.buffMult('click').toFixed(2) + ' (временные события)');
     lines.push('× ' + F.achMult('click').toFixed(2) + ' (достижения)');
     var any = false;
@@ -96,7 +100,11 @@
       if (F.buffs[k].until <= now) { delete F.buffs[k]; return; }
       list.push(F.buffs[k]);
     });
-    var key = list.map(function (b) { return b.label + Math.ceil((b.until - now) / 1000); }).join('|');
+    // разгон от знакомого «Кофе без сахара»: плашка без таймера
+    if (F.hasPerk('combo') && F.runtime.combo >= 1) {
+      list.push({ label: 'Разгон дядей: ×' + F.comboMult().toFixed(2), mult: 1, until: Infinity, noTime: true });
+    }
+    var key = list.map(function (b) { return b.label + (b.noTime ? '' : Math.ceil((b.until - now) / 1000)); }).join('|');
     if (key === buffsKey) return;
     buffsKey = key;
     var box = $('buffs');
@@ -104,7 +112,7 @@
     list.forEach(function (b) {
       var chip = document.createElement('span');
       chip.className = 'buff' + (b.mult < 1 ? ' bad' : '');
-      chip.textContent = b.label + ' · ' + Math.ceil((b.until - now) / 1000) + ' с';
+      chip.textContent = b.noTime ? b.label : b.label + ' · ' + Math.ceil((b.until - now) / 1000) + ' с';
       box.appendChild(chip);
     });
   }
@@ -142,14 +150,14 @@
     $('ups-wrap').classList.toggle('hidden', !anyUp);
 
     var gain = F.prestigeGain();
-    $('p-count').textContent = S.prestige;
+    $('p-count').textContent = F.trustFree();
     var claim = $('p-claim');
     claim.textContent = '+' + gain + ' к получению';
     claim.classList.toggle('hidden', gain < 1);
     $('p-desc').textContent = (gain >= 1
       ? 'Очки копятся: можно забрать сейчас +' + gain + ' или подождать, пока их станет больше. Бизнес и улучшения при выходе сгорят.'
       : 'Нужно заработать за этот заход минимум 1 млн €, тогда дяди начнут доверять.')
-      + ' Сейчас +' + (S.prestige * 10) + '% к доходу.';
+      + ' Свободное доверие даёт +' + (F.trustFree() * 10) + '% к доходу (всего заработано очков: ' + S.prestige + ').';
     // доверие = floor(sqrt(заработано за заход / 1 млн)): n-е очко открывается на n² млн €,
     // значит каждое следующее дороже предыдущего
     var from = gain * gain * 1e6, to = (gain + 1) * (gain + 1) * 1e6;
@@ -158,6 +166,7 @@
     $('p-bar-text').textContent = 'Следующее очко (всего +' + (gain + 1) + ') через ' + fmt(left) + ' € · '
       + (rate > 0 ? 'примерно ' + F.fmtTime(left / rate) + ' при текущем доходе' : 'без дохода не накопить');
     $('p-cost').textContent = 'Это очко стоит ещё ' + fmt(to - from) + ' €, следующее после него дороже на 2 млн €.';
+    F.renderPerks();
     var pb = $('p-btn');
     pb.disabled = gain < 1;
     if (!pb.dataset.armed) pb.textContent = gain >= 1 ? 'Выйти в плюс' : 'Пока нельзя';

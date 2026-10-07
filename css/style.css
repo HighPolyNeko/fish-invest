@@ -2,7 +2,9 @@
 :root { --fish: 150px; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
-  margin: 0; background: var(--bg); color: var(--text);
+  margin: 0; color: var(--text);
+  /* фон сцены на телефоне: свечение вокруг рыбы, плавно уходит в цвет страницы без резких краёв */
+  background: radial-gradient(ellipse 120% 480px at 50% 270px, var(--sea-light) 0%, var(--sea-mid) 45%, transparent 100%) no-repeat, var(--bg);
   font: 16px/1.35 -apple-system, system-ui, Roboto, sans-serif;
   user-select: none; -webkit-user-select: none;
 }
@@ -12,7 +14,9 @@ body {
 .col { display: contents; }
 #head { order: 1; } #buffs { order: 2; } #stage { order: 3; } #toast { order: 4; }
 #why { order: 5; } #amounts { order: 6; } #shopwrap { order: 7; } #ups-wrap { order: 8; }
-#prest { order: 9; } #foot { order: 10; }
+#prest { order: 9; } #perks-wrap { order: 9; } #foot { order: 10; }
+#perks-info { margin-bottom: 8px; color: var(--hint); font-size: 12px; }
+.row.perk.owned { box-shadow: inset 0 0 0 2px var(--good); }
 
 header { text-align: center; }
 #title { display: none; }
@@ -30,7 +34,6 @@ header { text-align: center; }
 #stage {
   position: relative; height: 230px; margin: 6px 0; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 18px; background: radial-gradient(circle at 50% 50%, var(--sea-light) 0%, transparent 72%);
 }
 #fish {
   flex: none; width: var(--fish); height: var(--fish); border: 0; border-radius: 50%; padding: 0;
@@ -144,9 +147,10 @@ details#why summary { cursor: pointer; font-size: 14px; font-weight: 600; }
   #title { display: block; margin: 0 0 6px; font-size: 22px; font-weight: 700; }
   #money { font-size: 44px; }
   #cps { font-size: 15px; }
-  #stage { flex: 1; min-height: 320px; height: auto; margin: 10px 0; background: none; }
+  body { background: var(--bg); }
+  #stage { flex: 1; min-height: 320px; height: auto; margin: 10px 0; }
   #toast { min-height: 44px; }
-  #head, #buffs, #stage, #toast, #why, #amounts, #shopwrap, #ups-wrap, #prest, #foot { order: 0; }
+  #head, #buffs, #stage, #toast, #why, #amounts, #shopwrap, #ups-wrap, #prest, #perks-wrap, #foot { order: 0; }
   #ups-wrap { order: 1; } #amounts { order: 2; } #shopwrap { order: 3; }
   #center h2:first-child, #right h2:first-child { margin-top: 0; }
 }
