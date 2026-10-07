@@ -133,10 +133,15 @@
     $('ups-wrap').classList.toggle('hidden', !anyUp);
 
     var gain = F.prestigeGain();
-    $('p-title').textContent = 'Доверие дядей: ' + S.prestige + ' (+' + (S.prestige * 10) + '% к доходу)';
-    $('p-desc').textContent = gain >= 1
+    $('p-count').textContent = S.prestige;
+    $('p-desc').textContent = (gain >= 1
       ? 'Начать заново и получить ещё +' + gain + ' доверия. Бизнес и улучшения сгорят.'
-      : 'Нужно заработать за этот заход минимум 1 млн €, тогда дяди начнут доверять.';
+      : 'Нужно заработать за этот заход минимум 1 млн €, тогда дяди начнут доверять.')
+      + ' Сейчас +' + (S.prestige * 10) + '% к доходу.';
+    // шкала до следующего очка доверия: доверие = floor(sqrt(заработано / 1 млн))
+    var from = gain * gain * 1e6, to = (gain + 1) * (gain + 1) * 1e6;
+    $('p-bar').style.width = Math.min(100, Math.max(0, (S.total - from) / (to - from) * 100)) + '%';
+    $('p-bar-text').textContent = 'До +' + (gain + 1) + ': ' + fmt(S.total) + ' / ' + fmt(to) + ' € за этот заход';
     var pb = $('p-btn');
     pb.disabled = gain < 1;
     if (!pb.dataset.armed) pb.textContent = gain >= 1 ? 'Выйти в плюс' : 'Пока нельзя';
