@@ -1,7 +1,12 @@
 name: Promote main
 
-# Запускать вручную после выката релиза на прод: main догоняет коммит релиза (только fast-forward).
+# main догоняет коммит релиза (только fast-forward).
+# Автоматически: когда в develop смержен back-merge PR из release/**.
+# Вручную: workflow_dispatch с именем релизной ветки.
 on:
+  pull_request:
+    types: [closed]
+    branches: [develop]
   workflow_dispatch:
     inputs:
       release_branch:
@@ -13,6 +18,10 @@ permissions:
 
 jobs:
   promote:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       startsWith(github.event.pull_request.head.ref, 'release/'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,12 +29,22 @@ jobs:
           fetch-depth: 0
       - name: Fast-forward main
         env:
-          RELEASE: ${{ inputs.release_branch }}
+          EVENT: ${{ github.event_name }}
+          MANUAL_BRANCH: ${{ inputs.release_branch }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          case "$RELEASE" in
-            release/*) ;;
-            *) echo "Нужна ветка вида release/X.Y.Z"; exit 1 ;;
-          esac
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            case "$MANUAL_BRANCH" in
+              release/*) ;;
+              *) echo "Нужна ветка вида release/X.Y.Z"; exit 1 ;;
+            esac
+            TARGET="origin/$MANUAL_BRANCH"
+          else
+            # ветку могли удалить при мерже, поэтому берём коммит, а не имя
+            echo "Back-merge из $PR_HEAD_REF"
+            TARGET="$PR_HEAD_SHA"
+          fi
           git checkout main
-          git merge --ff-only "origin/$RELEASE"
+          git merge --ff-only "$TARGET"
           git push origin main
