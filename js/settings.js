@@ -4,7 +4,7 @@
   var F = window.Fish = window.Fish || {};
   var KEY = 'rare-fish-settings-v1';
   // fish / button / scene: выбранная косметика (id). Доступность проверяется в cosmetics.js.
-  var DEFAULTS = { theme: 'dark', volume: 0.5, fish: 'fish', button: 'sand', scene: 'sea' };
+  var DEFAULTS = { theme: 'dark', volume: 0.5, numfmt: 'words', fish: 'fish', button: 'sand', scene: 'sea' };
 
   function load() {
     var s = {};
@@ -13,6 +13,7 @@
     return {
       theme: s.theme === 'light' ? 'light' : DEFAULTS.theme,
       volume: typeof s.volume === 'number' && s.volume >= 0 && s.volume <= 1 ? s.volume : DEFAULTS.volume,
+      numfmt: s.numfmt === 'sci' ? 'sci' : DEFAULTS.numfmt,   // 'words': 6 тыс, 'sci': 6e3
       fish: str(s.fish, DEFAULTS.fish),
       button: str(s.button, DEFAULTS.button),
       scene: str(s.scene, DEFAULTS.scene)
